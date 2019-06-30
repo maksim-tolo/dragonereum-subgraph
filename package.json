@@ -1,0 +1,16 @@
+{
+  "name": "@dragonereum/subgraph",
+  "license": "WTFPL",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ dragonereum/Getter",
+    "create-local": "graph create --node http://localhost:8020/ dragonereum/Getter",
+    "remove-local": "graph remove --node http://localhost:8020/ dragonereum/Getter",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 dragonereum/Getter"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.13.3",
+    "@graphprotocol/graph-ts": "0.13.0"
+  }
+}

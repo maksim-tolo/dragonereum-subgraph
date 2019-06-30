@@ -1,0 +1,11 @@
+node_modules
+generated
+
+# misc
+.DS_Store
+.idea
+.vscode
+.firebase
+
+# Log files
+*.log

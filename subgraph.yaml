@@ -1,0 +1,181 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Getter
+    network: mainnet
+    source:
+      address: "0xF88Fdb63dc782dAE646cD6c74728Ca83f56200E4"
+      abi: Getter
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Dragon
+        - Egg
+      abis:
+        - name: Getter
+          file: ./abis/Getter.json
+      callHandlers:
+        - function: transferOwnership(address)
+          handler: handleGetEggOnSaleInfo
+      file: ./src/getter-mapping.ts
+  - kind: ethereum/contract
+    name: Events
+    network: mainnet
+    source:
+      address: "0xD31b8e0219Bd83678978f6dB531d9A3F45608894"
+      abi: Events
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - EggClaimed
+        - EggSentToNest
+        - EggHatched
+        - DragonUpgraded
+        - EggCreated
+        - DragonOnSale
+        - DragonRemovedFromSale
+        - DragonRemovedFromBreeding
+        - DragonOnBreeding
+        - DragonBought
+        - DragonBreedingBought
+        - DistributionUpdated
+        - EggOnSale
+        - EggRemovedFromSale
+        - EggBought
+        - GoldSellOrderCreated
+        - GoldSellOrderCancelled
+        - GoldSold
+        - GoldBuyOrderCreated
+        - GoldBuyOrderCancelled
+        - GoldBought
+        - SkillOnSale
+        - SkillRemovedFromSale
+        - SkillBought
+        - SkillSet
+        - SkillUsed
+        - DragonNameSet
+        - DragonTacticsSet
+        - UserNameSet
+        - BattleEnded
+        - BattleDragonsDetails
+        - BattleHealthAndMana
+        - BattleSkills
+        - BattleTacticsAndBuffs
+        - GladiatorBattleEnded
+        - GladiatorBattleCreated
+        - GladiatorBattleApplicantAdded
+        - GladiatorBattleOpponentSelected
+        - GladiatorBattleCancelled
+        - GladiatorBattleBetReturned
+        - GladiatorBattleOpponentSelectTimeUpdated
+        - GladiatorBattleBlockNumberUpdated
+        - GladiatorBattleSpectatorBetPlaced
+        - GladiatorBattleSpectatorBetRemoved
+        - GladiatorBattleSpectatorRewardPaidOut
+        - LeaderboardRewardsDistributed
+        - OwnershipTransferred
+      abis:
+        - name: Events
+          file: ./abis/Events.json
+      eventHandlers:
+        - event: EggClaimed(indexed address,indexed uint256)
+          handler: handleEggClaimed
+        - event: EggSentToNest(indexed address,indexed uint256)
+          handler: handleEggSentToNest
+        - event: EggHatched(indexed address,indexed uint256,indexed uint256)
+          handler: handleEggHatched
+        - event: DragonUpgraded(indexed uint256)
+          handler: handleDragonUpgraded
+        - event: EggCreated(indexed address,indexed uint256)
+          handler: handleEggCreated
+        - event: DragonOnSale(indexed address,indexed uint256)
+          handler: handleDragonOnSale
+        - event: DragonRemovedFromSale(indexed address,indexed uint256)
+          handler: handleDragonRemovedFromSale
+        - event: DragonRemovedFromBreeding(indexed address,indexed uint256)
+          handler: handleDragonRemovedFromBreeding
+        - event: DragonOnBreeding(indexed address,indexed uint256)
+          handler: handleDragonOnBreeding
+        - event: DragonBought(indexed address,indexed address,indexed uint256,uint256)
+          handler: handleDragonBought
+        - event: DragonBreedingBought(indexed address,indexed address,indexed uint256,uint256)
+          handler: handleDragonBreedingBought
+        - event: DistributionUpdated(uint256,uint256,uint256)
+          handler: handleDistributionUpdated
+        - event: EggOnSale(indexed address,indexed uint256)
+          handler: handleEggOnSale
+        - event: EggRemovedFromSale(indexed address,indexed uint256)
+          handler: handleEggRemovedFromSale
+        - event: EggBought(indexed address,indexed address,indexed uint256,uint256)
+          handler: handleEggBought
+        - event: GoldSellOrderCreated(indexed address,uint256,uint256)
+          handler: handleGoldSellOrderCreated
+        - event: GoldSellOrderCancelled(indexed address)
+          handler: handleGoldSellOrderCancelled
+        - event: GoldSold(indexed address,indexed address,uint256,uint256)
+          handler: handleGoldSold
+        - event: GoldBuyOrderCreated(indexed address,uint256,uint256)
+          handler: handleGoldBuyOrderCreated
+        - event: GoldBuyOrderCancelled(indexed address)
+          handler: handleGoldBuyOrderCancelled
+        - event: GoldBought(indexed address,indexed address,uint256,uint256)
+          handler: handleGoldBought
+        - event: SkillOnSale(indexed address,indexed uint256)
+          handler: handleSkillOnSale
+        - event: SkillRemovedFromSale(indexed address,indexed uint256)
+          handler: handleSkillRemovedFromSale
+        - event: SkillBought(indexed address,indexed address,uint256,indexed uint256,uint256)
+          handler: handleSkillBought
+        - event: SkillSet(indexed uint256)
+          handler: handleSkillSet
+        - event: SkillUsed(indexed uint256,indexed uint256)
+          handler: handleSkillUsed
+        - event: DragonNameSet(indexed uint256,bytes32)
+          handler: handleDragonNameSet
+        - event: DragonTacticsSet(indexed uint256,uint8,uint8)
+          handler: handleDragonTacticsSet
+        - event: UserNameSet(indexed address,bytes32)
+          handler: handleUserNameSet
+        - event: BattleEnded(indexed uint256,uint256,uint256,uint256,indexed uint256,indexed uint256,bool,uint256)
+          handler: handleBattleEnded
+        - event: BattleDragonsDetails(indexed uint256,uint8,uint32,uint8,uint32)
+          handler: handleBattleDragonsDetails
+        - event: BattleHealthAndMana(indexed uint256,uint32,uint32,uint32,uint32,uint32,uint32,uint32,uint32)
+          handler: handleBattleHealthAndMana
+        - event: BattleSkills(indexed uint256,uint32,uint32,uint32,uint32,uint32,uint32,uint32,uint32,uint32,uint32)
+          handler: handleBattleSkills
+        - event: BattleTacticsAndBuffs(indexed uint256,uint8,uint8,uint8,uint8,uint32[5],uint32[5])
+          handler: handleBattleTacticsAndBuffs
+        - event: GladiatorBattleEnded(indexed uint256,uint256,indexed address,indexed address,uint256,bool)
+          handler: handleGladiatorBattleEnded
+        - event: GladiatorBattleCreated(indexed uint256,indexed address,indexed uint256,uint256,bool)
+          handler: handleGladiatorBattleCreated
+        - event: GladiatorBattleApplicantAdded(indexed uint256,indexed address,indexed uint256)
+          handler: handleGladiatorBattleApplicantAdded
+        - event: GladiatorBattleOpponentSelected(indexed uint256,indexed uint256)
+          handler: handleGladiatorBattleOpponentSelected
+        - event: GladiatorBattleCancelled(indexed uint256)
+          handler: handleGladiatorBattleCancelled
+        - event: GladiatorBattleBetReturned(indexed uint256,indexed address)
+          handler: handleGladiatorBattleBetReturned
+        - event: GladiatorBattleOpponentSelectTimeUpdated(indexed uint256,uint256)
+          handler: handleGladiatorBattleOpponentSelectTimeUpdated
+        - event: GladiatorBattleBlockNumberUpdated(indexed uint256,uint256)
+          handler: handleGladiatorBattleBlockNumberUpdated
+        - event: GladiatorBattleSpectatorBetPlaced(indexed uint256,indexed address,indexed bool,uint256,bool)
+          handler: handleGladiatorBattleSpectatorBetPlaced
+        - event: GladiatorBattleSpectatorBetRemoved(indexed uint256,indexed address)
+          handler: handleGladiatorBattleSpectatorBetRemoved
+        - event: GladiatorBattleSpectatorRewardPaidOut(indexed uint256,indexed address,uint256,bool)
+          handler: handleGladiatorBattleSpectatorRewardPaidOut
+        - event: LeaderboardRewardsDistributed(uint256[10],address[10])
+          handler: handleLeaderboardRewardsDistributed
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+      file: ./src/events-mapping.ts

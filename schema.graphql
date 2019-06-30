@@ -1,0 +1,45 @@
+type Auction @entity {
+  id: ID!
+  type: AuctionType!
+  currency: Currency!
+  status: AuctionStatus!
+  startPrice: BigInt!
+  endPrice: BigInt!
+  seller: Bytes!
+  period: BigInt!
+  created: BigInt!
+  buyer: Bytes
+  purchasePrice: BigInt
+  ended: BigInt
+}
+
+enum AuctionType @entity {
+  dragonSale
+  eggSale
+  dragonBreeding
+}
+
+enum AuctionStatus @entity {
+  active
+  canceled
+  fulfilled
+}
+
+enum Currency @entity {
+  gold
+  ether
+}
+
+type Dragon @entity {
+  id: ID!
+  owner: Bytes
+  auction: Auction
+}
+
+type Egg @entity {
+  id: ID!
+  owner: Bytes
+  isInNest: Boolean
+  isHatched: Boolean
+  auction: Auction
+}
