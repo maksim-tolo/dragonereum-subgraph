@@ -1,3 +1,25 @@
+type User @entity {
+  id: ID! # Address
+  name: Bytes
+  dragons: [Dragon!]
+  eggs: [Egg!]
+  goldAuction: GoldAuction!
+}
+
+type Dragon @entity {
+  id: ID!
+  owner: User
+  auction: Auction
+}
+
+type Egg @entity {
+  id: ID!
+  owner: User
+  isInNest: Boolean
+  isHatched: Boolean
+  auction: Auction
+}
+
 type Auction @entity {
   id: ID!
   type: AuctionType!
@@ -5,18 +27,25 @@ type Auction @entity {
   status: AuctionStatus!
   startPrice: BigInt!
   endPrice: BigInt!
-  seller: Bytes!
+  seller: User!
   period: BigInt!
   created: BigInt!
-  buyer: Bytes
+  buyer: User
   purchasePrice: BigInt
   ended: BigInt
 }
 
-enum AuctionType @entity {
-  dragonSale
-  eggSale
-  dragonBreeding
+type GoldAuction @entity {
+  id: ID!
+  type: GoldOrderType!
+  status: AuctionStatus!
+  seller: User!
+  price: BigInt!
+  amount: BigInt!
+  created: BigInt!
+  buyer: User
+  purchaseAmount: BigInt
+  ended: BigInt
 }
 
 enum AuctionStatus @entity {
@@ -25,21 +54,18 @@ enum AuctionStatus @entity {
   fulfilled
 }
 
+enum AuctionType @entity {
+  dragonSale
+  eggSale
+  dragonBreeding
+}
+
 enum Currency @entity {
   gold
   ether
 }
 
-type Dragon @entity {
-  id: ID!
-  owner: Bytes
-  auction: Auction
-}
-
-type Egg @entity {
-  id: ID!
-  owner: Bytes
-  isInNest: Boolean
-  isHatched: Boolean
-  auction: Auction
+enum GoldOrderType @entity {
+  sell
+  buy
 }

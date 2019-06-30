@@ -1,3 +1,7 @@
+/**
+ * TODO: Add DistributionUpdated event
+ */
+
 import {store, Address, BigInt, Value} from '@graphprotocol/graph-ts';
 import {
   EggClaimed as EggClaimedEvent,
@@ -52,6 +56,8 @@ import {
   Auction,
   Dragon,
   Egg,
+  User,
+  GoldAuction,
 } from "../generated/schema"
 import { Getter } from "../generated/Getter/Getter";
 
@@ -76,7 +82,13 @@ enum Currency {
   ether = 'ether',
 }
 
-function createEgg(id, owner) {
+enum GoldOrderType {
+  sell = 'sell',
+  buy = 'buy',
+}
+
+// TODO: Add default value and add egg to owner
+function createEgg(id: string, owner: string): void {
   const egg = new Egg(id);
 
   egg.owner = owner;
@@ -155,7 +167,7 @@ function fulfillAuction(entity: GameAsset, buyer: Address, price: BigInt, timest
 
     if (auction) {
       auction.status = AuctionStatus.fulfilled;
-      auction.buyer = buyer;
+      auction.buyer = buyer.toString();
       auction.purchasePrice = price;
       auction.ended = timestamp;
       auction.save();
@@ -166,8 +178,67 @@ function fulfillAuction(entity: GameAsset, buyer: Address, price: BigInt, timest
   }
 }
 
+function createGoldAuction(userId: string, auctionId: string, orderType: string, price: BigInt, amount: BigInt, timestamp: BigInt): void {
+  const user = User.load(userId) || new User(userId);
+  const goldAuction = new GoldAuction(auctionId);
+
+  goldAuction.type = orderType;
+  goldAuction.status = AuctionStatus.active;
+  goldAuction.seller = userId;
+  goldAuction.price = price;
+  goldAuction.amount = amount;
+  goldAuction.created = timestamp;
+  goldAuction.save();
+
+  user.goldAuction = auctionId;
+  user.save();
+}
+
+function cancelGoldAuction(userId: string, timestamp: BigInt): void {
+  const user = User.load(userId);
+
+  if (user && user.goldAuction) {
+    const goldAuction = GoldAuction.load(user.goldAuction);
+
+    if (goldAuction) {
+      goldAuction.status = AuctionStatus.canceled;
+      goldAuction.ended = timestamp;
+      goldAuction.save();
+    }
+
+    user.goldAuction = null;
+    user.save();
+  }
+}
+
+function fulfillGoldAuction(userId: string, buyer: string, amount: BigInt, newAuctionId: string, timestamp: BigInt): void {
+  const user = User.load(userId);
+
+  if (user && user.goldAuction) {
+    const goldAuction = new GoldAuction(user.goldAuction);
+
+    if (goldAuction) {
+      goldAuction.status = AuctionStatus.fulfilled;
+      goldAuction.ended = timestamp;
+      goldAuction.buyer = buyer;
+      goldAuction.purchaseAmount = amount;
+      goldAuction.save();
+
+      if (goldAuction.amount.notEqual(goldAuction.purchaseAmount)) {
+        createGoldAuction(userId, newAuctionId, goldAuction.type, goldAuction.price, goldAuction.amount.minus(goldAuction.purchaseAmount), timestamp)
+      } else {
+        user.goldAuction = null;
+        user.save();
+      }
+    } else {
+      user.goldAuction = null;
+      user.save();
+    }
+  }
+}
+
 export function handleEggClaimed(event: EggClaimedEvent): void {
-  createEgg(event.params.id.toString(), event.params.user);
+  createEgg(event.params.id.toString(), event.params.user.toString());
 }
 
 export function handleEggSentToNest(event: EggSentToNestEvent): void {
@@ -183,6 +254,7 @@ export function handleEggSentToNest(event: EggSentToNestEvent): void {
 export function handleEggHatched(event: EggHatchedEvent): void {
   const eggId = event.params.eggId.toString();
   const dragonId = event.params.dragonId.toString();
+  const userId = event.params.user.toString();
   const dragon = new Dragon(dragonId);
   const egg = Egg.load(eggId);
 
@@ -191,7 +263,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
     egg.save();
   }
 
-  dragon.owner = event.params.user;
+  dragon.owner = userId;
   dragon.save();
 }
 
@@ -205,7 +277,7 @@ export function handleDragonUpgraded(event: DragonUpgradedEvent): void {
 }
 
 export function handleEggCreated(event: EggCreatedEvent): void {
-  createEgg(event.params.id.toString(), event.params.user);
+  createEgg(event.params.id.toString(), event.params.user.toString());
 }
 
 export function handleEggOnSale(event: EggOnSaleEvent): void {
@@ -278,4 +350,54 @@ export function handleDragonBreedingBought(
   const dragon = Dragon.load(id);
 
   fulfillAuction(dragon, event.params.buyer, event.params.price, event.block.timestamp);
+}
+
+export function handleGoldSellOrderCreated(
+  event: GoldSellOrderCreatedEvent
+): void {
+  const seller = event.params.seller.toString();
+  const goldAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+
+  createGoldAuction(seller, goldAuctionId, GoldOrderType.sell, event.params.price, event.params.amount, event.block.timestamp);
+}
+
+export function handleGoldSellOrderCancelled(
+  event: GoldSellOrderCancelledEvent
+): void {
+  const seller = event.params.seller.toString();
+
+  cancelGoldAuction(seller, event.block.timestamp);
+}
+
+export function handleGoldSold(event: GoldSoldEvent): void {
+  const seller = event.params.seller.toString();
+  const buyer = event.params.buyer.toString();
+  const newAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+
+  fulfillGoldAuction(seller, buyer, event.params.amount, newAuctionId, event.block.timestamp);
+}
+
+export function handleGoldBuyOrderCreated(
+  event: GoldBuyOrderCreatedEvent
+): void {
+  const buyer = event.params.buyer.toString();
+  const goldAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+
+  createGoldAuction(buyer, goldAuctionId, GoldOrderType.buy, event.params.price, event.params.amount, event.block.timestamp);
+}
+
+export function handleGoldBuyOrderCancelled(
+  event: GoldBuyOrderCancelledEvent
+): void {
+  const buyer = event.params.buyer.toString();
+
+  cancelGoldAuction(buyer, event.block.timestamp);
+}
+
+export function handleGoldBought(event: GoldBoughtEvent): void {
+  const seller = event.params.seller.toString();
+  const buyer = event.params.buyer.toString();
+  const newAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+
+  fulfillGoldAuction(buyer, seller, event.params.amount, newAuctionId, event.block.timestamp);
 }

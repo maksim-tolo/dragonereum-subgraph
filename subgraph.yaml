@@ -44,7 +44,6 @@ dataSources:
         - DragonOnBreeding
         - DragonBought
         - DragonBreedingBought
-        - DistributionUpdated
         - EggOnSale
         - EggRemovedFromSale
         - EggBought
@@ -106,8 +105,6 @@ dataSources:
           handler: handleDragonBought
         - event: DragonBreedingBought(indexed address,indexed address,indexed uint256,uint256)
           handler: handleDragonBreedingBought
-        - event: DistributionUpdated(uint256,uint256,uint256)
-          handler: handleDistributionUpdated
         - event: EggOnSale(indexed address,indexed uint256)
           handler: handleEggOnSale
         - event: EggRemovedFromSale(indexed address,indexed uint256)
