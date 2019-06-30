@@ -8,8 +8,16 @@ type User @entity {
 
 type Dragon @entity {
   id: ID!
-  owner: User
+  owner: User!
+  tactics: DragonTactics!
   auction: Auction
+  name: Bytes
+}
+
+type DragonTactics @entity {
+  id: ID!
+  melee: Int
+  attack: Int
 }
 
 type Egg @entity {

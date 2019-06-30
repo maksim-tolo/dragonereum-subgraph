@@ -2,7 +2,7 @@
  * TODO: Add DistributionUpdated event
  */
 
-import {store, Address, BigInt, Value} from '@graphprotocol/graph-ts';
+import { Address, BigInt, Value } from '@graphprotocol/graph-ts';
 import {
   EggClaimed as EggClaimedEvent,
   EggSentToNest as EggSentToNestEvent,
@@ -51,15 +51,16 @@ import {
   GladiatorBattleSpectatorRewardPaidOut as GladiatorBattleSpectatorRewardPaidOutEvent,
   LeaderboardRewardsDistributed as LeaderboardRewardsDistributedEvent,
   OwnershipTransferred as OwnershipTransferredEvent
-} from "../generated/Events/Events"
+} from '../generated/Events/Events';
 import {
   Auction,
   Dragon,
   Egg,
   User,
   GoldAuction,
-} from "../generated/schema"
-import { Getter } from "../generated/Getter/Getter";
+  DragonTactics,
+} from '../generated/schema';
+import { Getter } from '../generated/Getter/Getter';
 
 const getterAddress = Address.fromString('0xF88Fdb63dc782dAE646cD6c74728Ca83f56200E4'); // TODO: Use dynamic address
 
@@ -252,18 +253,29 @@ export function handleEggSentToNest(event: EggSentToNestEvent): void {
 }
 
 export function handleEggHatched(event: EggHatchedEvent): void {
+  const getter = Getter.bind(getterAddress);
   const eggId = event.params.eggId.toString();
   const dragonId = event.params.dragonId.toString();
   const userId = event.params.user.toString();
   const dragon = new Dragon(dragonId);
+  const tactics = new DragonTactics(dragonId);
   const egg = Egg.load(eggId);
+  const {
+    value0: melee,
+    value1: attack,
+  } = getter.getDragonTactics(event.params.dragonId);
 
   if (egg) {
     egg.isHatched = true;
     egg.save();
   }
 
+  tactics.melee = melee;
+  tactics.attack = attack;
+  tactics.save();
+
   dragon.owner = userId;
+  dragon.tactics = dragonId;
   dragon.save();
 }
 
@@ -400,4 +412,31 @@ export function handleGoldBought(event: GoldBoughtEvent): void {
   const newAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
 
   fulfillGoldAuction(buyer, seller, event.params.amount, newAuctionId, event.block.timestamp);
+}
+
+export function handleDragonNameSet(event: DragonNameSetEvent): void {
+  const id = event.params.id.toString();
+  const dragon = Dragon.load(id);
+
+  dragon.name = event.params.name;
+  dragon.save();
+}
+
+export function handleDragonTacticsSet(event: DragonTacticsSetEvent): void {
+  const id = event.params.id.toString();
+  const tactics = DragonTactics.load(id);
+
+  if (tactics) {
+    tactics.melee = event.params.melee;
+    tactics.attack = event.params.attack;
+    tactics.save();
+  }
+}
+
+export function handleUserNameSet(event: UserNameSetEvent): void {
+  const id = event.params.user.toString();
+  const user = User.load(id) || new User(id);
+
+  user.name = event.params.name;
+  user.save();
 }
