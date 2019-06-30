@@ -208,12 +208,35 @@ export function handleEggCreated(event: EggCreatedEvent): void {
   createEgg(event.params.id.toString(), event.params.user);
 }
 
+export function handleEggOnSale(event: EggOnSaleEvent): void {
+  const id = event.params.id.toString();
+  const egg = Egg.load(id);
+  const auctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+
+  createAuction(egg, auctionId, AuctionType.eggSale);
+}
+
 export function handleDragonOnSale(event: DragonOnSaleEvent): void {
   const id = event.params.id.toString();
   const dragon = Dragon.load(id);
   const auctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
 
   createAuction(dragon, auctionId, AuctionType.dragonSale);
+}
+
+export function handleDragonOnBreeding(event: DragonOnBreedingEvent): void {
+  const id = event.params.id.toString();
+  const dragon = Dragon.load(id);
+  const auctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+
+  createAuction(dragon, auctionId, AuctionType.dragonBreeding);
+}
+
+export function handleEggRemovedFromSale(event: EggRemovedFromSaleEvent): void {
+  const id = event.params.id.toString();
+  const egg = Egg.load(id);
+
+  cancelAuction(egg, event.block.timestamp);
 }
 
 export function handleDragonRemovedFromSale(
@@ -234,12 +257,11 @@ export function handleDragonRemovedFromBreeding(
   cancelAuction(dragon, event.block.timestamp);
 }
 
-export function handleDragonOnBreeding(event: DragonOnBreedingEvent): void {
+export function handleEggBought(event: EggBoughtEvent): void {
   const id = event.params.id.toString();
-  const dragon = Dragon.load(id);
-  const auctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
+  const egg = Egg.load(id);
 
-  createAuction(dragon, auctionId, AuctionType.dragonBreeding);
+  fulfillAuction(egg, event.params.buyer, event.params.price, event.block.timestamp);
 }
 
 export function handleDragonBought(event: DragonBoughtEvent): void {
