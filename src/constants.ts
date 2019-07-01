@@ -1,9 +1,6 @@
 import { Address } from '@graphprotocol/graph-ts/index';
-import { Dragon, Egg } from '../generated/schema';
 
 export const getterAddress = Address.fromString('0xF88Fdb63dc782dAE646cD6c74728Ca83f56200E4'); // TODO: Use dynamic address
-
-export type GameAsset = Dragon | Egg;
 
 export enum AuctionType {
   dragonSale = 'dragonSale',

@@ -55,18 +55,15 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   const dragon = new Dragon(dragonId);
   const tactics = new DragonTactics(dragonId);
   const egg = Egg.load(eggId);
-  const {
-    value0: melee,
-    value1: attack,
-  } = getter.getDragonTactics(event.params.dragonId);
+  const tacticsValue = getter.getDragonTactics(event.params.dragonId);
 
   if (egg) {
     egg.isHatched = true;
     egg.save();
   }
 
-  tactics.melee = melee;
-  tactics.attack = attack;
+  tactics.melee = tacticsValue.value0;
+  tactics.attack = tacticsValue.value1;
   tactics.save();
 
   dragon.owner = userId;
