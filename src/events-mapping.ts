@@ -60,7 +60,7 @@ import {
   GoldAuction,
   DragonTactics,
 } from '../generated/schema';
-import { Getter } from '../generated/Getter/Getter';
+import { Getter } from '../generated/Events/Getter';
 
 const getterAddress = Address.fromString('0xF88Fdb63dc782dAE646cD6c74728Ca83f56200E4'); // TODO: Use dynamic address
 

@@ -1,8 +1,8 @@
 type User @entity {
   id: ID! # Address
   name: Bytes
-  dragons: [Dragon!]
-  eggs: [Egg!]
+  dragons: [Dragon!] @derivedFrom(field: "owner")
+  eggs: [Egg!] @derivedFrom(field: "owner")
   goldAuction: GoldAuction!
 }
 
@@ -56,24 +56,24 @@ type GoldAuction @entity {
   ended: BigInt
 }
 
-enum AuctionStatus @entity {
+enum AuctionStatus {
   active
   canceled
   fulfilled
 }
 
-enum AuctionType @entity {
+enum AuctionType {
   dragonSale
   eggSale
   dragonBreeding
 }
 
-enum Currency @entity {
+enum Currency {
   gold
   ether
 }
 
-enum GoldOrderType @entity {
+enum GoldOrderType {
   sell
   buy
 }

@@ -3,26 +3,6 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Getter
-    network: mainnet
-    source:
-      address: "0xF88Fdb63dc782dAE646cD6c74728Ca83f56200E4"
-      abi: Getter
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.3
-      language: wasm/assemblyscript
-      entities:
-        - Dragon
-        - Egg
-      abis:
-        - name: Getter
-          file: ./abis/Getter.json
-      callHandlers:
-        - function: transferOwnership(address)
-          handler: handleGetEggOnSaleInfo
-      file: ./src/getter-mapping.ts
-  - kind: ethereum/contract
     name: Events
     network: mainnet
     source:
@@ -33,55 +13,14 @@ dataSources:
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
-        - EggClaimed
-        - EggSentToNest
-        - EggHatched
-        - DragonUpgraded
-        - EggCreated
-        - DragonOnSale
-        - DragonRemovedFromSale
-        - DragonRemovedFromBreeding
-        - DragonOnBreeding
-        - DragonBought
-        - DragonBreedingBought
-        - EggOnSale
-        - EggRemovedFromSale
-        - EggBought
-        - GoldSellOrderCreated
-        - GoldSellOrderCancelled
-        - GoldSold
-        - GoldBuyOrderCreated
-        - GoldBuyOrderCancelled
-        - GoldBought
-        - SkillOnSale
-        - SkillRemovedFromSale
-        - SkillBought
-        - SkillSet
-        - SkillUsed
-        - DragonNameSet
-        - DragonTacticsSet
-        - UserNameSet
-        - BattleEnded
-        - BattleDragonsDetails
-        - BattleHealthAndMana
-        - BattleSkills
-        - BattleTacticsAndBuffs
-        - GladiatorBattleEnded
-        - GladiatorBattleCreated
-        - GladiatorBattleApplicantAdded
-        - GladiatorBattleOpponentSelected
-        - GladiatorBattleCancelled
-        - GladiatorBattleBetReturned
-        - GladiatorBattleOpponentSelectTimeUpdated
-        - GladiatorBattleBlockNumberUpdated
-        - GladiatorBattleSpectatorBetPlaced
-        - GladiatorBattleSpectatorBetRemoved
-        - GladiatorBattleSpectatorRewardPaidOut
-        - LeaderboardRewardsDistributed
-        - OwnershipTransferred
+        - User
+        - Dragon
+        - Egg
       abis:
         - name: Events
           file: ./abis/Events.json
+        - name: Getter
+          file: ./abis/Getter.json
       eventHandlers:
         - event: EggClaimed(indexed address,indexed uint256)
           handler: handleEggClaimed
