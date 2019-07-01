@@ -114,4 +114,4 @@ dataSources:
           handler: handleLeaderboardRewardsDistributed
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
-      file: ./src/events-mapping.ts
+      file: ./src/index.ts
