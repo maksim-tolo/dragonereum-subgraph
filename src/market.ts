@@ -42,11 +42,11 @@ interface AuctionInfo {
 interface GameAsset {
   id: string;
   owner: string;
-  auction: string;
+  auction: string | null;
   save: Function;
 }
 
-function getAuctionInfo(entityId: BigInt, auctionType: string): AuctionInfo {
+function getAuctionInfo(entityId: BigInt, auctionType: string): AuctionInfo | null {
   const contract = Getter.bind(Address.fromString(getterAddress));
 
   switch (auctionType) {
@@ -61,31 +61,33 @@ function getAuctionInfo(entityId: BigInt, auctionType: string): AuctionInfo {
   }
 }
 
-function createAuction(entity: GameAsset, auctionId: string, auctionType: string): void {
-  const auctionInfo = getAuctionInfo(Value.fromString(entity.id).toBigInt(), auctionType);
+function createAuction(entity: GameAsset | null, auctionId: string, auctionType: string): void {
+  if (entity) {
+    const auctionInfo = getAuctionInfo(Value.fromString(entity.id).toBigInt(), auctionType);
 
-  if (entity && auctionInfo) {
-    const auction = new Auction(auctionId);
+    if (auctionInfo) {
+      const auction = new Auction(auctionId);
 
-    auction.type = auctionType;
-    auction.currency = auctionInfo.value6 ? GoldCurrency : EtherCurrency;
-    auction.status = ActiveAuctionStatus;
-    auction.startPrice = auctionInfo.value2;
-    auction.endPrice = auctionInfo.value3;
-    auction.seller = entity.owner;
-    auction.period = auctionInfo.value4;
-    auction.created = auctionInfo.value5;
-    auction.save();
+      auction.type = auctionType;
+      auction.currency = auctionInfo.value6 ? GoldCurrency : EtherCurrency;
+      auction.status = ActiveAuctionStatus;
+      auction.startPrice = auctionInfo.value2;
+      auction.endPrice = auctionInfo.value3;
+      auction.seller = entity.owner;
+      auction.period = auctionInfo.value4;
+      auction.created = auctionInfo.value5;
+      auction.save();
 
-    if (entity) {
-      entity.auction = auctionId;
-      entity.save();
+      if (entity) {
+        entity.auction = auctionId;
+        entity.save();
+      }
     }
   }
 }
 
 // TODO: Handle ownership transferring or add entity.owner = buyer;
-function fulfillAuction(entity: GameAsset, buyer: Address, price: BigInt, timestamp: BigInt): void {
+function fulfillAuction(entity: GameAsset | null, buyer: Address, price: BigInt, timestamp: BigInt): void {
   if (entity && entity.auction) {
     const auction = Auction.load(entity.auction);
 
@@ -102,7 +104,7 @@ function fulfillAuction(entity: GameAsset, buyer: Address, price: BigInt, timest
   }
 }
 
-function cancelAuction(entity: GameAsset, timestamp: BigInt): void {
+function cancelAuction(entity: GameAsset | null, timestamp: BigInt): void {
   if (entity && entity.auction) {
     const auction = Auction.load(entity.auction);
 

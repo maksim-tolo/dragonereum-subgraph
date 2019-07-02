@@ -90,8 +90,10 @@ export function handleDragonNameSet(event: DragonNameSetEvent): void {
   const id = event.params.id.toString();
   const dragon = Dragon.load(id);
 
-  dragon.name = event.params.name;
-  dragon.save();
+  if (dragon) {
+    dragon.name = event.params.name;
+    dragon.save();
+  }
 }
 
 export function handleDragonTacticsSet(event: DragonTacticsSetEvent): void {
