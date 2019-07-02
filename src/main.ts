@@ -1,6 +1,8 @@
 /**
  * TODO: Add DistributionUpdated event
  */
+import { Address } from '@graphprotocol/graph-ts';
+
 import {
   EggClaimed as EggClaimedEvent,
   EggSentToNest as EggSentToNestEvent,
@@ -48,7 +50,7 @@ export function handleEggSentToNest(event: EggSentToNestEvent): void {
 }
 
 export function handleEggHatched(event: EggHatchedEvent): void {
-  const getter = Getter.bind(getterAddress);
+  const getter = Getter.bind(Address.fromString(getterAddress));
   const eggId = event.params.eggId.toString();
   const dragonId = event.params.dragonId.toString();
   const userId = event.params.user.toString();

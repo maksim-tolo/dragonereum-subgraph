@@ -11,14 +11,20 @@ import {
   User,
   GoldAuction,
 } from '../generated/schema';
-import { AuctionStatus, GoldOrderType } from './constants';
+import {
+  ActiveAuctionStatus,
+  BuyGoldOrderType,
+  CanceledAuctionStatus,
+  FulfilledAuctionStatus,
+  SellGoldOrderType,
+} from './constants';
 
 function createGoldAuction(userId: string, auctionId: string, orderType: string, price: BigInt, amount: BigInt, timestamp: BigInt): void {
   const user = User.load(userId) || new User(userId);
   const goldAuction = new GoldAuction(auctionId);
 
   goldAuction.type = orderType;
-  goldAuction.status = AuctionStatus.active;
+  goldAuction.status = ActiveAuctionStatus;
   goldAuction.seller = userId;
   goldAuction.price = price;
   goldAuction.amount = amount;
@@ -36,7 +42,7 @@ function cancelGoldAuction(userId: string, timestamp: BigInt): void {
     const goldAuction = GoldAuction.load(user.goldAuction);
 
     if (goldAuction) {
-      goldAuction.status = AuctionStatus.canceled;
+      goldAuction.status = CanceledAuctionStatus;
       goldAuction.ended = timestamp;
       goldAuction.save();
     }
@@ -53,7 +59,7 @@ function fulfillGoldAuction(userId: string, buyer: string, amount: BigInt, newAu
     const goldAuction = new GoldAuction(user.goldAuction);
 
     if (goldAuction) {
-      goldAuction.status = AuctionStatus.fulfilled;
+      goldAuction.status = FulfilledAuctionStatus;
       goldAuction.ended = timestamp;
       goldAuction.buyer = buyer;
       goldAuction.purchaseAmount = amount;
@@ -78,7 +84,7 @@ export function handleGoldSellOrderCreated(
   const seller = event.params.seller.toString();
   const goldAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
 
-  createGoldAuction(seller, goldAuctionId, GoldOrderType.sell, event.params.price, event.params.amount, event.block.timestamp);
+  createGoldAuction(seller, goldAuctionId, SellGoldOrderType, event.params.price, event.params.amount, event.block.timestamp);
 }
 
 export function handleGoldSellOrderCancelled(
@@ -103,7 +109,7 @@ export function handleGoldBuyOrderCreated(
   const buyer = event.params.buyer.toString();
   const goldAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
 
-  createGoldAuction(buyer, goldAuctionId, GoldOrderType.buy, event.params.price, event.params.amount, event.block.timestamp);
+  createGoldAuction(buyer, goldAuctionId, BuyGoldOrderType, event.params.price, event.params.amount, event.block.timestamp);
 }
 
 export function handleGoldBuyOrderCancelled(

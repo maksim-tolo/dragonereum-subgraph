@@ -16,7 +16,17 @@ import {
   Egg,
 } from '../generated/schema';
 import { Getter } from '../generated/Events/Getter';
-import { AuctionStatus, AuctionType, Currency, getterAddress } from './constants';
+import {
+  ActiveAuctionStatus,
+  CanceledAuctionStatus,
+  DragonBreedingAuctionType,
+  DragonSaleAuctionType,
+  EggSaleAuctionType,
+  EtherCurrency,
+  FulfilledAuctionStatus,
+  getterAddress,
+  GoldCurrency,
+} from './constants';
 
 interface AuctionInfo {
   value0: Address; // seller
@@ -28,30 +38,38 @@ interface AuctionInfo {
   value6: boolean; // isGold
 }
 
+// Egg or Dragon
+interface GameAsset {
+  id: string;
+  owner: string;
+  auction: string;
+  save: Function;
+}
+
 function getAuctionInfo(entityId: BigInt, auctionType: string): AuctionInfo {
-  const contract = Getter.bind(getterAddress);
+  const contract = Getter.bind(Address.fromString(getterAddress));
 
   switch (auctionType) {
-    case AuctionType.dragonSale:
+    case DragonSaleAuctionType:
       return contract.getDragonOnSaleInfo(entityId);
-    case AuctionType.eggSale:
+    case EggSaleAuctionType:
       return contract.getEggOnSaleInfo(entityId);
-    case AuctionType.dragonBreeding:
+    case DragonBreedingAuctionType:
       return contract.getBreedingOnSaleInfo(entityId);
     default:
       return null;
   }
 }
 
-function createAuction<T>(entity: T, auctionId: string, auctionType: string): void {
+function createAuction(entity: GameAsset, auctionId: string, auctionType: string): void {
   const auctionInfo = getAuctionInfo(Value.fromString(entity.id).toBigInt(), auctionType);
 
   if (entity && auctionInfo) {
     const auction = new Auction(auctionId);
 
-    auction.type = AuctionType.dragonSale;
-    auction.currency = auctionInfo.value6 ? Currency.gold : Currency.ether;
-    auction.status = AuctionStatus.active;
+    auction.type = auctionType;
+    auction.currency = auctionInfo.value6 ? GoldCurrency : EtherCurrency;
+    auction.status = ActiveAuctionStatus;
     auction.startPrice = auctionInfo.value2;
     auction.endPrice = auctionInfo.value3;
     auction.seller = entity.owner;
@@ -67,12 +85,12 @@ function createAuction<T>(entity: T, auctionId: string, auctionType: string): vo
 }
 
 // TODO: Handle ownership transferring or add entity.owner = buyer;
-function fulfillAuction<T>(entity: T, buyer: Address, price: BigInt, timestamp: BigInt): void {
+function fulfillAuction(entity: GameAsset, buyer: Address, price: BigInt, timestamp: BigInt): void {
   if (entity && entity.auction) {
     const auction = Auction.load(entity.auction);
 
     if (auction) {
-      auction.status = AuctionStatus.fulfilled;
+      auction.status = FulfilledAuctionStatus;
       auction.buyer = buyer.toString();
       auction.purchasePrice = price;
       auction.ended = timestamp;
@@ -84,12 +102,12 @@ function fulfillAuction<T>(entity: T, buyer: Address, price: BigInt, timestamp: 
   }
 }
 
-function cancelAuction<T>(entity: T, timestamp: BigInt): void {
+function cancelAuction(entity: GameAsset, timestamp: BigInt): void {
   if (entity && entity.auction) {
     const auction = Auction.load(entity.auction);
 
     if (auction) {
-      auction.status = AuctionStatus.canceled;
+      auction.status = CanceledAuctionStatus;
       auction.ended = timestamp;
       auction.save();
     }
@@ -104,7 +122,7 @@ export function handleEggOnSale(event: EggOnSaleEvent): void {
   const egg = Egg.load(id);
   const auctionId = event.transaction.hash.toHex() + '-' + event.logIndex.toString();
 
-  createAuction(egg, auctionId, AuctionType.eggSale);
+  createAuction(egg, auctionId, EggSaleAuctionType);
 }
 
 export function handleDragonOnSale(event: DragonOnSaleEvent): void {
@@ -112,7 +130,7 @@ export function handleDragonOnSale(event: DragonOnSaleEvent): void {
   const dragon = Dragon.load(id);
   const auctionId = event.transaction.hash.toHex() + '-' + event.logIndex.toString();
 
-  createAuction(dragon, auctionId, AuctionType.dragonSale);
+  createAuction(dragon, auctionId, DragonSaleAuctionType);
 }
 
 export function handleDragonOnBreeding(event: DragonOnBreedingEvent): void {
@@ -120,7 +138,7 @@ export function handleDragonOnBreeding(event: DragonOnBreedingEvent): void {
   const dragon = Dragon.load(id);
   const auctionId = event.transaction.hash.toHex() + '-' + event.logIndex.toString();
 
-  createAuction(dragon, auctionId, AuctionType.dragonBreeding);
+  createAuction(dragon, auctionId, DragonBreedingAuctionType);
 }
 
 export function handleEggRemovedFromSale(event: EggRemovedFromSaleEvent): void {
