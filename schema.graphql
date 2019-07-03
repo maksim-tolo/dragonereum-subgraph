@@ -12,12 +12,10 @@ type Dragon @entity {
   tactics: DragonTactics!
   auction: Auction
   name: Bytes
-}
-
-type DragonTactics @entity {
-  id: ID!
-  melee: Int
-  attack: Int
+  parents: [Dragon!]!
+  dragonsChildren: [Dragon!] @derivedFrom(field: "parents")
+  eggsChildren: [Egg!] @derivedFrom(field: "parents")
+  fromEgg: Egg!
 }
 
 type Egg @entity {
@@ -25,7 +23,19 @@ type Egg @entity {
   owner: User!
   isInNest: Boolean
   isHatched: Boolean
+  hatchedDragon: Dragon
   auction: Auction
+  generation: Int!
+  coolness: BigInt!
+  parents: [Dragon!]!
+  momDragonTypes: [Int!]!
+  dadDragonTypes: [Int!]!
+}
+
+type DragonTactics @entity {
+  id: ID!
+  melee: Int
+  attack: Int
 }
 
 type Auction @entity {

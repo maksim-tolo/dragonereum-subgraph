@@ -47,15 +47,15 @@ interface GameAsset {
 }
 
 function getAuctionInfo(entityId: BigInt, auctionType: string): AuctionInfo | null {
-  const contract = Getter.bind(Address.fromString(getterAddress));
+  const getter = Getter.bind(Address.fromString(getterAddress));
 
   switch (auctionType) {
     case DragonSaleAuctionType:
-      return contract.getDragonOnSaleInfo(entityId);
+      return getter.getDragonOnSaleInfo(entityId);
     case EggSaleAuctionType:
-      return contract.getEggOnSaleInfo(entityId);
+      return getter.getEggOnSaleInfo(entityId);
     case DragonBreedingAuctionType:
-      return contract.getBreedingOnSaleInfo(entityId);
+      return getter.getBreedingOnSaleInfo(entityId);
     default:
       return null;
   }

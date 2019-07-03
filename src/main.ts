@@ -1,7 +1,7 @@
 /**
  * TODO: Add DistributionUpdated event
  */
-import { Address } from '@graphprotocol/graph-ts';
+import { Address, BigInt } from '@graphprotocol/graph-ts';
 
 import {
   EggClaimed as EggClaimedEvent,
@@ -25,18 +25,25 @@ import { Getter } from '../generated/Events/Getter';
 import { getterAddress } from './constants';
 
 // TODO: Add default value and add egg to owner
-function createEgg(id: string, owner: string): void {
-  const egg = new Egg(id);
+function createEgg(id: BigInt, owner: Address): void {
+  const egg = new Egg(id.toString());
+  const getter = Getter.bind(Address.fromString(getterAddress));
+  const eggDetails = getter.getEgg(id);
 
-  egg.owner = owner;
+  egg.owner = owner.toString();
   egg.isInNest = false;
   egg.isHatched = false;
+  egg.generation = eggDetails.value0;
+  egg.coolness = eggDetails.value1;
+  egg.parents = eggDetails.value2.map(id => id.toString());
+  egg.momDragonTypes = eggDetails.value3;
+  egg.dadDragonTypes = eggDetails.value4;
 
   egg.save();
 }
 
 export function handleEggClaimed(event: EggClaimedEvent): void {
-  createEgg(event.params.id.toString(), event.params.user.toString());
+  createEgg(event.params.id, event.params.user);
 }
 
 export function handleEggSentToNest(event: EggSentToNestEvent): void {
@@ -58,9 +65,12 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   const tactics = new DragonTactics(dragonId);
   const egg = Egg.load(eggId);
   const tacticsValue = getter.getDragonTactics(event.params.dragonId);
+  const parents = getter.getDragonParents(event.params.dragonId);
 
   if (egg) {
     egg.isHatched = true;
+    egg.hatchedDragon = dragonId;
+    egg.owner = ''; // TODO: null address
     egg.save();
   }
 
@@ -69,7 +79,9 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   tactics.save();
 
   dragon.owner = userId;
-  dragon.tactics = dragonId;
+  dragon.tactics = dragonId; // Reference to DragonTactics
+  dragon.fromEgg = eggId;
+  dragon.parents = parents.map(id => id.toString());
   dragon.save();
 }
 
@@ -83,7 +95,7 @@ export function handleDragonUpgraded(event: DragonUpgradedEvent): void {
 }
 
 export function handleEggCreated(event: EggCreatedEvent): void {
-  createEgg(event.params.id.toString(), event.params.user.toString());
+  createEgg(event.params.id, event.params.user);
 }
 
 export function handleDragonNameSet(event: DragonNameSetEvent): void {
