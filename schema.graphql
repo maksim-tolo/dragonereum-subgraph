@@ -8,7 +8,7 @@ type User @entity {
 
 type Dragon @entity {
   id: ID!
-  owner: User!
+  owner: User
   tactics: DragonTactics!
   auction: Auction
   name: Bytes
@@ -20,7 +20,7 @@ type Dragon @entity {
 
 type Egg @entity {
   id: ID!
-  owner: User!
+  owner: User
   isInNest: Boolean
   isHatched: Boolean
   hatchedDragon: Dragon

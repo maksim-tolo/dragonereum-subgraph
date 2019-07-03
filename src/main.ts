@@ -70,7 +70,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   if (egg) {
     egg.isHatched = true;
     egg.hatchedDragon = dragonId;
-    egg.owner = ''; // TODO: null address
+    egg.owner = null;
     egg.save();
   }
 

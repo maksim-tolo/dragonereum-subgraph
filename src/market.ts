@@ -41,7 +41,7 @@ interface AuctionInfo {
 // Egg or Dragon
 interface GameAsset {
   id: string;
-  owner: string;
+  owner: string | null;
   auction: string | null;
   save: Function;
 }
@@ -62,7 +62,7 @@ function getAuctionInfo(entityId: BigInt, auctionType: string): AuctionInfo | nu
 }
 
 function createAuction(entity: GameAsset | null, auctionId: string, auctionType: string): void {
-  if (entity) {
+  if (entity && entity.owner) {
     const auctionInfo = getAuctionInfo(Value.fromString(entity.id).toBigInt(), auctionType);
 
     if (auctionInfo) {
