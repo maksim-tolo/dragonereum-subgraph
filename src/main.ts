@@ -1,7 +1,7 @@
 /**
  * TODO: Add DistributionUpdated event
  */
-import { Address, BigInt, log } from '@graphprotocol/graph-ts';
+import { Address, BigInt, log, Value } from '@graphprotocol/graph-ts';
 
 import {
   EggClaimed as EggClaimedEvent,

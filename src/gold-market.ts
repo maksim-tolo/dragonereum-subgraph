@@ -66,7 +66,7 @@ function fulfillGoldAuction(userId: string, buyer: string, amount: BigInt, newAu
       goldAuction.save();
 
       if (goldAuction.amount.notEqual(amount)) {
-        createGoldAuction(userId, newAuctionId, goldAuction.type, goldAuction.price, goldAuction.amount.minus(goldAuction.purchaseAmount), timestamp)
+        createGoldAuction(userId, newAuctionId, goldAuction.type, goldAuction.price, goldAuction.amount.minus(amount), timestamp)
       } else {
         user.goldAuction = null;
         user.save();
