@@ -37,7 +37,7 @@ function createEgg(id: BigInt, owner: Address): void {
   egg.isHatched = false;
   egg.generation = eggDetails.value0;
   egg.coolness = eggDetails.value1;
-  egg.parents = eggDetails.value2.map(id => id.toString());
+  egg.parents = eggDetails.value2.map<string>(id => id.toString());
   egg.momDragonTypes = eggDetails.value3;
   egg.dadDragonTypes = eggDetails.value4;
 
@@ -83,7 +83,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   dragon.owner = userId;
   dragon.tactics = dragonId; // Reference to DragonTactics
   dragon.fromEgg = eggId;
-  dragon.parents = parents.map(id => id.toString());
+  dragon.parents = parents.map<string>(id => id.toString());
   dragon.save();
 }
 
@@ -132,18 +132,13 @@ export function handleUserNameSet(event: UserNameSetEvent): void {
 // TODO: Check null address
 // event.params._from.toHex() != '0x0000000000000000000000000000000000000000'
 export function handleDragonTransfer(event: DragonTransferEvent): void {
-  const from = event.params._from;
-  const to = event.params._to;
-  const id = event.params._tokenId.toString();
-  const dragon = Dragon.load(id);
+  let from = event.params._from;
+  let to = event.params._to;
+  let id = event.params._tokenId.toString();
+  let dragon = Dragon.load(id);
 
-  log(3, from);
-  log(3, from.toString());
-  log(3, from.toHex());
-  log(3, from.length);
-
-  if (to && !User.load(to.toHex())) {
-    const user = new User(to.toHex());
+  if (!User.load(to.toHex()) != null) {
+    let user = new User(to.toHex());
 
     user.save();
   }
@@ -155,18 +150,17 @@ export function handleDragonTransfer(event: DragonTransferEvent): void {
 }
 
 export function handleEggTransfer(event: EggTransferEvent): void {
-  const from = event.params._from;
-  const to = event.params._to;
-  const id = event.params._tokenId.toString();
-  const egg = Egg.load(id);
+  let from = event.params._from;
+  let to = event.params._to;
+  let id = event.params._tokenId.toString();
+  let egg = Egg.load(id);
 
-  log(3, from);
-  log(3, from.toString());
-  log(3, from.toHex());
-  log(3, from.length);
+  log.info(to.toHex(), []);
+  log.info(to.toString(), []);
+  log.info(Value.fromI32(to.length).toString(), []);
 
-  if (to && !User.load(to.toHex())) {
-    const user = new User(to.toHex());
+  if (!User.load(to.toHex()) != null) {
+    let user = new User(to.toHex());
 
     user.save();
   }
