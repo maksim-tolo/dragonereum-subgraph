@@ -65,58 +65,12 @@ dataSources:
           handler: handleGoldBuyOrderCancelled
         - event: GoldBought(indexed address,indexed address,uint256,uint256)
           handler: handleGoldBought
-        - event: SkillOnSale(indexed address,indexed uint256)
-          handler: handleSkillOnSale
-        - event: SkillRemovedFromSale(indexed address,indexed uint256)
-          handler: handleSkillRemovedFromSale
-        - event: SkillBought(indexed address,indexed address,uint256,indexed uint256,uint256)
-          handler: handleSkillBought
-        - event: SkillSet(indexed uint256)
-          handler: handleSkillSet
-        - event: SkillUsed(indexed uint256,indexed uint256)
-          handler: handleSkillUsed
         - event: DragonNameSet(indexed uint256,bytes32)
           handler: handleDragonNameSet
         - event: DragonTacticsSet(indexed uint256,uint8,uint8)
           handler: handleDragonTacticsSet
         - event: UserNameSet(indexed address,bytes32)
           handler: handleUserNameSet
-        - event: BattleEnded(indexed uint256,uint256,uint256,uint256,indexed uint256,indexed uint256,bool,uint256)
-          handler: handleBattleEnded
-        - event: BattleDragonsDetails(indexed uint256,uint8,uint32,uint8,uint32)
-          handler: handleBattleDragonsDetails
-        - event: BattleHealthAndMana(indexed uint256,uint32,uint32,uint32,uint32,uint32,uint32,uint32,uint32)
-          handler: handleBattleHealthAndMana
-        - event: BattleSkills(indexed uint256,uint32,uint32,uint32,uint32,uint32,uint32,uint32,uint32,uint32,uint32)
-          handler: handleBattleSkills
-        - event: BattleTacticsAndBuffs(indexed uint256,uint8,uint8,uint8,uint8,uint32[5],uint32[5])
-          handler: handleBattleTacticsAndBuffs
-        - event: GladiatorBattleEnded(indexed uint256,uint256,indexed address,indexed address,uint256,bool)
-          handler: handleGladiatorBattleEnded
-        - event: GladiatorBattleCreated(indexed uint256,indexed address,indexed uint256,uint256,bool)
-          handler: handleGladiatorBattleCreated
-        - event: GladiatorBattleApplicantAdded(indexed uint256,indexed address,indexed uint256)
-          handler: handleGladiatorBattleApplicantAdded
-        - event: GladiatorBattleOpponentSelected(indexed uint256,indexed uint256)
-          handler: handleGladiatorBattleOpponentSelected
-        - event: GladiatorBattleCancelled(indexed uint256)
-          handler: handleGladiatorBattleCancelled
-        - event: GladiatorBattleBetReturned(indexed uint256,indexed address)
-          handler: handleGladiatorBattleBetReturned
-        - event: GladiatorBattleOpponentSelectTimeUpdated(indexed uint256,uint256)
-          handler: handleGladiatorBattleOpponentSelectTimeUpdated
-        - event: GladiatorBattleBlockNumberUpdated(indexed uint256,uint256)
-          handler: handleGladiatorBattleBlockNumberUpdated
-        - event: GladiatorBattleSpectatorBetPlaced(indexed uint256,indexed address,indexed bool,uint256,bool)
-          handler: handleGladiatorBattleSpectatorBetPlaced
-        - event: GladiatorBattleSpectatorBetRemoved(indexed uint256,indexed address)
-          handler: handleGladiatorBattleSpectatorBetRemoved
-        - event: GladiatorBattleSpectatorRewardPaidOut(indexed uint256,indexed address,uint256,bool)
-          handler: handleGladiatorBattleSpectatorRewardPaidOut
-        - event: LeaderboardRewardsDistributed(uint256[10],address[10])
-          handler: handleLeaderboardRewardsDistributed
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
       file: ./src/index.ts
   - kind: ethereum/contract
     name: DragonStorage
