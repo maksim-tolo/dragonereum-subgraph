@@ -1,7 +1,7 @@
 /**
  * TODO: Add DistributionUpdated event
  */
-import { Address, BigInt } from '@graphprotocol/graph-ts';
+import { Address, BigInt, log } from '@graphprotocol/graph-ts';
 
 import {
   EggClaimed as EggClaimedEvent,
@@ -15,6 +15,8 @@ import {
   LeaderboardRewardsDistributed as LeaderboardRewardsDistributedEvent,
   DistributionUpdated as DistributionUpdatedEvent,
 } from '../generated/Events/Events';
+import { Transfer as DragonTransferEvent } from '../generated/DragonStorage/DragonStorage';
+import { Transfer as EggTransferEvent } from '../generated/EggStorage/EggStorage';
 import {
   Dragon,
   Egg,
@@ -30,7 +32,7 @@ function createEgg(id: BigInt, owner: Address): void {
   const getter = Getter.bind(Address.fromString(getterAddress));
   const eggDetails = getter.getEgg(id);
 
-  egg.owner = owner.toString();
+  egg.owner = owner.toHex();
   egg.isInNest = false;
   egg.isHatched = false;
   egg.generation = eggDetails.value0;
@@ -60,7 +62,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   const getter = Getter.bind(Address.fromString(getterAddress));
   const eggId = event.params.eggId.toString();
   const dragonId = event.params.dragonId.toString();
-  const userId = event.params.user.toString();
+  const userId = event.params.user.toHex();
   const dragon = new Dragon(dragonId);
   const tactics = new DragonTactics(dragonId);
   const egg = Egg.load(eggId);
@@ -120,9 +122,57 @@ export function handleDragonTacticsSet(event: DragonTacticsSetEvent): void {
 }
 
 export function handleUserNameSet(event: UserNameSetEvent): void {
-  const id = event.params.user.toString();
+  const id = event.params.user.toHex();
   const user = User.load(id) || new User(id);
 
   user.name = event.params.name;
   user.save();
+}
+
+// TODO: Check null address
+// event.params._from.toHex() != '0x0000000000000000000000000000000000000000'
+export function handleDragonTransfer(event: DragonTransferEvent): void {
+  const from = event.params._from;
+  const to = event.params._to;
+  const id = event.params._tokenId.toString();
+  const dragon = Dragon.load(id);
+
+  log(3, from);
+  log(3, from.toString());
+  log(3, from.toHex());
+  log(3, from.length);
+
+  if (to && !User.load(to.toHex())) {
+    const user = new User(to.toHex());
+
+    user.save();
+  }
+
+  if (dragon) {
+    dragon.owner = to.toHex();
+    dragon.save();
+  }
+}
+
+export function handleEggTransfer(event: EggTransferEvent): void {
+  const from = event.params._from;
+  const to = event.params._to;
+  const id = event.params._tokenId.toString();
+  const egg = Egg.load(id);
+
+  log(3, from);
+  log(3, from.toString());
+  log(3, from.toHex());
+  log(3, from.length);
+
+  if (to && !User.load(to.toHex())) {
+    const user = new User(to.toHex());
+
+    user.save();
+  }
+
+  if (egg) {
+    egg.owner = to.toHex();
+    egg.save();
+  }
 }

@@ -93,7 +93,7 @@ function fulfillAuction(entity: GameAsset | null, buyer: Address, price: BigInt,
 
     if (auction) {
       auction.status = FulfilledAuctionStatus;
-      auction.buyer = buyer.toString();
+      auction.buyer = buyer.toHex();
       auction.purchasePrice = price;
       auction.ended = timestamp;
       auction.save();

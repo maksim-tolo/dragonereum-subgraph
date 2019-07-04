@@ -81,7 +81,7 @@ function fulfillGoldAuction(userId: string, buyer: string, amount: BigInt, newAu
 export function handleGoldSellOrderCreated(
   event: GoldSellOrderCreatedEvent
 ): void {
-  const seller = event.params.seller.toString();
+  const seller = event.params.seller.toHex();
   const goldAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
 
   createGoldAuction(seller, goldAuctionId, SellGoldOrderType, event.params.price, event.params.amount, event.block.timestamp);
@@ -90,14 +90,14 @@ export function handleGoldSellOrderCreated(
 export function handleGoldSellOrderCancelled(
   event: GoldSellOrderCancelledEvent
 ): void {
-  const seller = event.params.seller.toString();
+  const seller = event.params.seller.toHex();
 
   cancelGoldAuction(seller, event.block.timestamp);
 }
 
 export function handleGoldSold(event: GoldSoldEvent): void {
-  const seller = event.params.seller.toString();
-  const buyer = event.params.buyer.toString();
+  const seller = event.params.seller.toHex();
+  const buyer = event.params.buyer.toHex();
   const newAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
 
   fulfillGoldAuction(seller, buyer, event.params.amount, newAuctionId, event.block.timestamp);
@@ -106,7 +106,7 @@ export function handleGoldSold(event: GoldSoldEvent): void {
 export function handleGoldBuyOrderCreated(
   event: GoldBuyOrderCreatedEvent
 ): void {
-  const buyer = event.params.buyer.toString();
+  const buyer = event.params.buyer.toHex();
   const goldAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
 
   createGoldAuction(buyer, goldAuctionId, BuyGoldOrderType, event.params.price, event.params.amount, event.block.timestamp);
@@ -115,14 +115,14 @@ export function handleGoldBuyOrderCreated(
 export function handleGoldBuyOrderCancelled(
   event: GoldBuyOrderCancelledEvent
 ): void {
-  const buyer = event.params.buyer.toString();
+  const buyer = event.params.buyer.toHex();
 
   cancelGoldAuction(buyer, event.block.timestamp);
 }
 
 export function handleGoldBought(event: GoldBoughtEvent): void {
-  const seller = event.params.seller.toString();
-  const buyer = event.params.buyer.toString();
+  const seller = event.params.seller.toHex();
+  const buyer = event.params.buyer.toHex();
   const newAuctionId = event.transaction.hash.toHex() + "-" + event.logIndex.toString();
 
   fulfillGoldAuction(buyer, seller, event.params.amount, newAuctionId, event.block.timestamp);
