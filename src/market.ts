@@ -62,10 +62,10 @@ function getAuctionInfo(entityId: BigInt, auctionType: string): AuctionInfo | nu
 }
 
 function createAuction(entity: GameAsset | null, auctionId: string, auctionType: string): void {
-  if (entity && entity.owner) {
+  if (entity != null && entity.owner != null) {
     let auctionInfo = getAuctionInfo(Value.fromString(entity.id).toBigInt(), auctionType);
 
-    if (auctionInfo) {
+    if (auctionInfo != null) {
       let auction = new Auction(auctionId);
 
       auction.type = auctionType;
@@ -78,7 +78,7 @@ function createAuction(entity: GameAsset | null, auctionId: string, auctionType:
       auction.created = auctionInfo.value5;
       auction.save();
 
-      if (entity) {
+      if (entity != null) {
         entity.auction = auctionId;
         entity.save();
       }
@@ -88,10 +88,10 @@ function createAuction(entity: GameAsset | null, auctionId: string, auctionType:
 
 // TODO: Handle ownership transferring or add entity.owner = buyer;
 function fulfillAuction(entity: GameAsset | null, buyer: Address, price: BigInt, timestamp: BigInt): void {
-  if (entity && entity.auction) {
+  if (entity != null && entity.auction != null) {
     let auction = Auction.load(entity.auction);
 
-    if (auction) {
+    if (auction != null) {
       auction.status = FulfilledAuctionStatus;
       auction.buyer = buyer.toHex();
       auction.purchasePrice = price;
@@ -105,10 +105,10 @@ function fulfillAuction(entity: GameAsset | null, buyer: Address, price: BigInt,
 }
 
 function cancelAuction(entity: GameAsset | null, timestamp: BigInt): void {
-  if (entity && entity.auction) {
+  if (entity != null && entity.auction != null) {
     let auction = Auction.load(entity.auction);
 
-    if (auction) {
+    if (auction != null) {
       auction.status = CanceledAuctionStatus;
       auction.ended = timestamp;
       auction.save();

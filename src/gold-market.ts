@@ -38,10 +38,10 @@ function createGoldAuction(userId: string, auctionId: string, orderType: string,
 function cancelGoldAuction(userId: string, timestamp: BigInt): void {
   let user = User.load(userId);
 
-  if (user && user.goldAuction) {
+  if (user != null && user.goldAuction != null) {
     let goldAuction = GoldAuction.load(user.goldAuction);
 
-    if (goldAuction) {
+    if (goldAuction != null) {
       goldAuction.status = CanceledAuctionStatus;
       goldAuction.ended = timestamp;
       goldAuction.save();
@@ -55,10 +55,10 @@ function cancelGoldAuction(userId: string, timestamp: BigInt): void {
 function fulfillGoldAuction(userId: string, buyer: string, amount: BigInt, newAuctionId: string, timestamp: BigInt): void {
   let user = User.load(userId);
 
-  if (user && user.goldAuction) {
+  if (user != null && user.goldAuction != null) {
     let goldAuction = new GoldAuction(user.goldAuction);
 
-    if (goldAuction) {
+    if (goldAuction != null) {
       goldAuction.status = FulfilledAuctionStatus;
       goldAuction.ended = timestamp;
       goldAuction.buyer = buyer;

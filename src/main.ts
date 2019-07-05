@@ -26,7 +26,7 @@ import {
 import { Getter } from '../generated/Events/Getter';
 import { getterAddress } from './constants';
 
-// TODO: Add default value and add egg to owner
+// TODO: Add more default values
 function createEgg(id: BigInt, owner: Address): void {
   let egg = new Egg(id.toString());
   let getter = Getter.bind(Address.fromString(getterAddress));
@@ -48,16 +48,21 @@ export function handleEggClaimed(event: EggClaimedEvent): void {
   createEgg(event.params.id, event.params.user);
 }
 
+export function handleEggCreated(event: EggCreatedEvent): void {
+  createEgg(event.params.id, event.params.user);
+}
+
 export function handleEggSentToNest(event: EggSentToNestEvent): void {
   let id = event.params.id.toString();
   let egg = Egg.load(id);
 
-  if (egg) {
+  if (egg != null) {
     egg.isInNest = true;
     egg.save();
   }
 }
 
+// TODO: Add more default values
 export function handleEggHatched(event: EggHatchedEvent): void {
   let getter = Getter.bind(Address.fromString(getterAddress));
   let eggId = event.params.eggId.toString();
@@ -69,7 +74,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let tacticsValue = getter.getDragonTactics(event.params.dragonId);
   let parents = getter.getDragonParents(event.params.dragonId);
 
-  if (egg) {
+  if (egg != null) {
     egg.isHatched = true;
     egg.hatchedDragon = dragonId;
     egg.owner = null;
@@ -87,24 +92,21 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   dragon.save();
 }
 
+// TODO: Not implemented yet
 export function handleDragonUpgraded(event: DragonUpgradedEvent): void {
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
 
-  if (dragon) {
+  if (dragon != null) {
     dragon.save();
   }
-}
-
-export function handleEggCreated(event: EggCreatedEvent): void {
-  createEgg(event.params.id, event.params.user);
 }
 
 export function handleDragonNameSet(event: DragonNameSetEvent): void {
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
 
-  if (dragon) {
+  if (dragon != null) {
     dragon.name = event.params.name;
     dragon.save();
   }
@@ -114,7 +116,7 @@ export function handleDragonTacticsSet(event: DragonTacticsSetEvent): void {
   let id = event.params.id.toString();
   let tactics = DragonTactics.load(id);
 
-  if (tactics) {
+  if (tactics != null) {
     tactics.melee = event.params.melee;
     tactics.attack = event.params.attack;
     tactics.save();
@@ -137,13 +139,13 @@ export function handleDragonTransfer(event: DragonTransferEvent): void {
   let id = event.params._tokenId.toString();
   let dragon = Dragon.load(id);
 
-  if (!User.load(to.toHex()) != null) {
+  if (User.load(to.toHex()) != null) {
     let user = new User(to.toHex());
 
     user.save();
   }
 
-  if (dragon) {
+  if (dragon != null) {
     dragon.owner = to.toHex();
     dragon.save();
   }
@@ -159,13 +161,13 @@ export function handleEggTransfer(event: EggTransferEvent): void {
   log.info(to.toString(), []);
   log.info(Value.fromI32(to.length).toString(), []);
 
-  if (!User.load(to.toHex()) != null) {
+  if (User.load(to.toHex()) != null) {
     let user = new User(to.toHex());
 
     user.save();
   }
 
-  if (egg) {
+  if (egg != null) {
     egg.owner = to.toHex();
     egg.save();
   }
