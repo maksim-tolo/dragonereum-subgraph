@@ -3,6 +3,46 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
+    name: EggStorage
+    network: mainnet
+    source:
+      address: "0xfCAd2859F3e602D4cFB9ACA35465A618f9009F7b"
+      abi: EggStorage
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Egg
+      abis:
+        - name: EggStorage
+          file: ./abis/EggStorage.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleEggTransfer
+      file: ./src/index.ts
+  - kind: ethereum/contract
+    name: DragonStorage
+    network: mainnet
+    source:
+      address: "0x960f401AED58668ef476eF02B2A2D43B83C261D8"
+      abi: DragonStorage
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Dragon
+      abis:
+        - name: DragonStorage
+          file: ./abis/DragonStorage.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleDragonTransfer
+      file: ./src/index.ts
+  - kind: ethereum/contract
     name: Events
     network: mainnet
     source:
@@ -71,44 +111,4 @@ dataSources:
           handler: handleDragonTacticsSet
         - event: UserNameSet(indexed address,bytes32)
           handler: handleUserNameSet
-      file: ./src/index.ts
-  - kind: ethereum/contract
-    name: DragonStorage
-    network: mainnet
-    source:
-      address: "0x960f401AED58668ef476eF02B2A2D43B83C261D8"
-      abi: DragonStorage
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.3
-      language: wasm/assemblyscript
-      entities:
-        - User
-        - Dragon
-      abis:
-        - name: DragonStorage
-          file: ./abis/DragonStorage.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleDragonTransfer
-      file: ./src/index.ts
-  - kind: ethereum/contract
-    name: EggStorage
-    network: mainnet
-    source:
-      address: "0xfCAd2859F3e602D4cFB9ACA35465A618f9009F7b"
-      abi: EggStorage
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.3
-      language: wasm/assemblyscript
-      entities:
-        - User
-        - Egg
-      abis:
-        - name: EggStorage
-          file: ./abis/EggStorage.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleEggTransfer
       file: ./src/index.ts

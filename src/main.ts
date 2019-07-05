@@ -1,7 +1,7 @@
 /**
  * TODO: Add DistributionUpdated event
  */
-import { Address, BigInt, log, Value } from '@graphprotocol/graph-ts';
+import { Address, BigInt, log } from '@graphprotocol/graph-ts';
 
 import {
   EggClaimed as EggClaimedEvent,
@@ -24,11 +24,12 @@ import {
   DragonTactics,
 } from '../generated/schema';
 import { Getter } from '../generated/Events/Getter';
-import { getterAddress } from './constants';
+import { getterAddress, nullAddress } from './constants';
 
 // TODO: Add more default values
 function createEgg(id: BigInt, owner: Address): void {
-  let egg = new Egg(id.toString());
+  let eggId = id.toString();
+  let egg = Egg.load(eggId) || new Egg(eggId);
   let getter = Getter.bind(Address.fromString(getterAddress));
   let eggDetails = getter.getEgg(id);
 
@@ -40,7 +41,6 @@ function createEgg(id: BigInt, owner: Address): void {
   egg.parents = eggDetails.value2.map<string>(id => id.toString());
   egg.momDragonTypes = eggDetails.value3;
   egg.dadDragonTypes = eggDetails.value4;
-
   egg.save();
 }
 
@@ -68,8 +68,8 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let eggId = event.params.eggId.toString();
   let dragonId = event.params.dragonId.toString();
   let userId = event.params.user.toHex();
-  let dragon = new Dragon(dragonId);
-  let tactics = new DragonTactics(dragonId);
+  let dragon = Dragon.load(dragonId) || new Dragon(dragonId);
+  let tactics = DragonTactics.load(dragonId) || new DragonTactics(dragonId);
   let egg = Egg.load(eggId);
   let tacticsValue = getter.getDragonTactics(event.params.dragonId);
   let parents = getter.getDragonParents(event.params.dragonId);
@@ -107,7 +107,7 @@ export function handleDragonNameSet(event: DragonNameSetEvent): void {
   let dragon = Dragon.load(id);
 
   if (dragon != null) {
-    dragon.name = event.params.name;
+    dragon.name = event.params.name.toString();
     dragon.save();
   }
 }
@@ -127,48 +127,47 @@ export function handleUserNameSet(event: UserNameSetEvent): void {
   let id = event.params.user.toHex();
   let user = User.load(id) || new User(id);
 
-  user.name = event.params.name;
+  user.name = event.params.name.toString();
   user.save();
 }
 
 // TODO: Check null address
 // event.params._from.toHex() != '0x0000000000000000000000000000000000000000'
 export function handleDragonTransfer(event: DragonTransferEvent): void {
-  let from = event.params._from;
-  let to = event.params._to;
+  let from = event.params._from.toHex();
+  let to = event.params._to.toHex();
   let id = event.params._tokenId.toString();
-  let dragon = Dragon.load(id);
+  let dragon = Dragon.load(id) || new Dragon(id);
 
-  if (User.load(to.toHex()) != null) {
-    let user = new User(to.toHex());
+  if (to != nullAddress) {
+    let user = User.load(to) || new User(to);
 
     user.save();
+    dragon.owner = to;
+  } else {
+    dragon.owner = null;
   }
 
-  if (dragon != null) {
-    dragon.owner = to.toHex();
-    dragon.save();
-  }
+  dragon.save();
 }
 
 export function handleEggTransfer(event: EggTransferEvent): void {
-  let from = event.params._from;
-  let to = event.params._to;
+  let from = event.params._from.toHex();
+  let to = event.params._to.toHex();
   let id = event.params._tokenId.toString();
-  let egg = Egg.load(id);
+  let egg = Egg.load(id) || new Egg(id);
 
-  log.info(to.toHex(), []);
-  log.info(to.toString(), []);
-  log.info(Value.fromI32(to.length).toString(), []);
+  log.debug('From address:', [from]);
+  log.debug('To address:', [to]);
 
-  if (User.load(to.toHex()) != null) {
-    let user = new User(to.toHex());
+  if (to != nullAddress) {
+    let user = User.load(to) || new User(to);
 
     user.save();
+    egg.owner = to;
+  } else {
+    egg.owner = null;
   }
 
-  if (egg != null) {
-    egg.owner = to.toHex();
-    egg.save();
-  }
+  egg.save();
 }

@@ -56,7 +56,7 @@ function fulfillGoldAuction(userId: string, buyer: string, amount: BigInt, newAu
   let user = User.load(userId);
 
   if (user != null && user.goldAuction != null) {
-    let goldAuction = new GoldAuction(user.goldAuction);
+    let goldAuction = GoldAuction.load(user.goldAuction);
 
     if (goldAuction != null) {
       goldAuction.status = FulfilledAuctionStatus;

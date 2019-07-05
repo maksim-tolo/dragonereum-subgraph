@@ -1,6 +1,6 @@
 type User @entity {
   id: ID! # Address
-  name: Bytes
+  name: String
   dragons: [Dragon!] @derivedFrom(field: "owner")
   eggs: [Egg!] @derivedFrom(field: "owner")
   goldAuction: GoldAuction
@@ -11,7 +11,7 @@ type Dragon @entity {
   owner: User
   tactics: DragonTactics!
   auction: Auction
-  name: Bytes
+  name: String
   parents: [Dragon!]!
   dragonsChildren: [Dragon!] @derivedFrom(field: "parents")
   eggsChildren: [Egg!] @derivedFrom(field: "parents")
