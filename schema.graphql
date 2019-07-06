@@ -40,8 +40,8 @@ type DragonTactics @entity {
 
 type Auction @entity {
   id: ID!
-  dragonId: Dragon
-  eggId: Egg
+  dragon: Dragon
+  egg: Egg
   type: AuctionType!
   currency: Currency!
   status: AuctionStatus!
@@ -54,6 +54,7 @@ type Auction @entity {
   buyer: User
   purchasePrice: BigInt
   ended: BigInt
+  txHash: String
 }
 
 type GoldAuction @entity {
@@ -67,6 +68,7 @@ type GoldAuction @entity {
   buyer: User
   purchaseAmount: BigInt
   ended: BigInt
+  txHash: String
 }
 
 enum AuctionStatus {
