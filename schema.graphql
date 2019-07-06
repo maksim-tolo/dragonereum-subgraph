@@ -40,6 +40,8 @@ type DragonTactics @entity {
 
 type Auction @entity {
   id: ID!
+  dragonId: Dragon
+  eggId: Egg
   type: AuctionType!
   currency: Currency!
   status: AuctionStatus!

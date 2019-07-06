@@ -46,7 +46,7 @@ interface AuctionInfo {
 }
 
 // Egg or Dragon
-interface GameAsset {
+interface ERC721Token {
   id: string;
   owner: string | null;
   auction: string | null;
@@ -94,8 +94,8 @@ function updateCurrentPrice(auctionId: string, timestamp: BigInt): boolean {
   return false;
 }
 
-function createAuction<T extends GameAsset, K extends AuctionInfo>(entity: T | null, auctionInfo: K, auctionId: string, auctionType: string): void {
-  if (entity != null && entity.owner != null && auctionInfo != null) {
+function createAuction<T extends ERC721Token, K extends AuctionInfo>(token: T | null, auctionInfo: K, auctionId: string, auctionType: string): void {
+  if (token != null && token.owner != null && auctionInfo != null) {
     let auction = new Auction(auctionId);
 
     auction.type = auctionType;
@@ -104,7 +104,7 @@ function createAuction<T extends GameAsset, K extends AuctionInfo>(entity: T | n
     auction.currentPrice = auctionInfo.value1;
     auction.startPrice = auctionInfo.value2;
     auction.endPrice = auctionInfo.value3;
-    auction.seller = entity.owner;
+    auction.seller = token.owner;
     auction.period = auctionInfo.value4;
     auction.created = auctionInfo.value5;
     auction.save();
@@ -113,14 +113,14 @@ function createAuction<T extends GameAsset, K extends AuctionInfo>(entity: T | n
       addAuctionToDynamicPricesRegistry(auctionId);
     }
 
-    entity.auction = auctionId;
-    entity.save();
+    token.auction = auctionId;
+    token.save();
   }
 }
 
-function fulfillAuction<T extends GameAsset>(entity: T | null, buyer: Address, price: BigInt, timestamp: BigInt): void {
-  if (entity != null && entity.auction != null) {
-    let auction = Auction.load(entity.auction);
+function fulfillAuction<T extends ERC721Token>(token: T | null, buyer: Address, price: BigInt, timestamp: BigInt): void {
+  if (token != null && token.auction != null) {
+    let auction = Auction.load(token.auction);
 
     if (auction != null) {
       auction.status = FulfilledAuctionStatus;
@@ -130,18 +130,18 @@ function fulfillAuction<T extends GameAsset>(entity: T | null, buyer: Address, p
       auction.save();
 
       if (auction.startPrice != auction.endPrice) {
-        removeAuctionFromDynamicPricesRegistry(entity.auction);
+        removeAuctionFromDynamicPricesRegistry(token.auction);
       }
     }
 
-    entity.auction = null;
-    entity.save();
+    token.auction = null;
+    token.save();
   }
 }
 
-function cancelAuction<T extends GameAsset>(entity: T | null, timestamp: BigInt): void {
-  if (entity != null && entity.auction != null) {
-    let auction = Auction.load(entity.auction);
+function cancelAuction<T extends ERC721Token>(token: T | null, timestamp: BigInt): void {
+  if (token != null && token.auction != null) {
+    let auction = Auction.load(token.auction);
 
     if (auction != null) {
       auction.status = CanceledAuctionStatus;
@@ -149,12 +149,12 @@ function cancelAuction<T extends GameAsset>(entity: T | null, timestamp: BigInt)
       auction.save();
 
       if (auction.startPrice != auction.endPrice) {
-        removeAuctionFromDynamicPricesRegistry(entity.auction);
+        removeAuctionFromDynamicPricesRegistry(token.auction);
       }
     }
 
-    entity.auction = null;
-    entity.save();
+    token.auction = null;
+    token.save();
   }
 }
 
@@ -166,6 +166,13 @@ export function handleEggOnSale(event: EggOnSaleEvent): void {
   let auctionInfo = getter.getEggOnSaleInfo(event.params.id);
 
   createAuction<Egg, EggSaleInfo>(egg, auctionInfo, auctionId, EggSaleAuctionType);
+
+  let auction = Auction.load(auctionId);
+
+  if (auction) {
+    auction.eggId = id;
+    auction.save();
+  }
 }
 
 export function handleDragonOnSale(event: DragonOnSaleEvent): void {
@@ -176,6 +183,13 @@ export function handleDragonOnSale(event: DragonOnSaleEvent): void {
   let auctionInfo = getter.getDragonOnSaleInfo(event.params.id);
 
   createAuction<Dragon, DragonSaleInfo>(dragon, auctionInfo, auctionId, DragonSaleAuctionType);
+
+  let auction = Auction.load(auctionId);
+
+  if (auction) {
+    auction.dragonId = id;
+    auction.save();
+  }
 }
 
 export function handleDragonOnBreeding(event: DragonOnBreedingEvent): void {
@@ -186,6 +200,13 @@ export function handleDragonOnBreeding(event: DragonOnBreedingEvent): void {
   let auctionInfo = getter.getBreedingOnSaleInfo(event.params.id);
 
   createAuction<Dragon, DragonBreedingSaleInfo>(dragon, auctionInfo, auctionId, DragonBreedingAuctionType);
+
+  let auction = Auction.load(auctionId);
+
+  if (auction) {
+    auction.dragonId = id;
+    auction.save();
+  }
 }
 
 export function handleEggRemovedFromSale(event: EggRemovedFromSaleEvent): void {
