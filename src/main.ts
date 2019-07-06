@@ -1,7 +1,7 @@
 /**
  * TODO: Add DistributionUpdated event
  */
-import { Address, BigInt, log } from '@graphprotocol/graph-ts';
+import { Address, BigInt } from '@graphprotocol/graph-ts';
 
 import {
   EggClaimed as EggClaimedEvent,
@@ -131,10 +131,7 @@ export function handleUserNameSet(event: UserNameSetEvent): void {
   user.save();
 }
 
-// TODO: Check null address
-// event.params._from.toHex() != '0x0000000000000000000000000000000000000000'
 export function handleDragonTransfer(event: DragonTransferEvent): void {
-  let from = event.params._from.toHex();
   let to = event.params._to.toHex();
   let id = event.params._tokenId.toString();
   let dragon = Dragon.load(id) || new Dragon(id);
@@ -152,13 +149,9 @@ export function handleDragonTransfer(event: DragonTransferEvent): void {
 }
 
 export function handleEggTransfer(event: EggTransferEvent): void {
-  let from = event.params._from.toHex();
   let to = event.params._to.toHex();
   let id = event.params._tokenId.toString();
   let egg = Egg.load(id) || new Egg(id);
-
-  log.debug('From address:', [from]);
-  log.debug('To address:', [to]);
 
   if (to != nullAddress) {
     let user = User.load(to) || new User(to);
