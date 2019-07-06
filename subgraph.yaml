@@ -64,6 +64,8 @@ dataSources:
           file: ./abis/Events.json
         - name: Getter
           file: ./abis/Getter.json
+      blockHandlers:
+        - handler: handleBlock
       eventHandlers:
         - event: EggClaimed(indexed address,indexed uint256)
           handler: handleEggClaimed

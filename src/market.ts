@@ -1,4 +1,4 @@
-import { Address, BigInt, Value } from '@graphprotocol/graph-ts';
+import { Address, BigInt, EthereumBlock } from '@graphprotocol/graph-ts';
 import {
   DragonOnSale as DragonOnSaleEvent,
   DragonRemovedFromSale as DragonRemovedFromSaleEvent,
@@ -14,6 +14,7 @@ import {
   Auction,
   Dragon,
   Egg,
+  DynamicPricesRegistry,
 } from '../generated/schema';
 import {
   Getter,
@@ -31,6 +32,7 @@ import {
   FulfilledAuctionStatus,
   getterAddress,
   GoldCurrency,
+  pricesRegistryId,
 } from './constants';
 
 interface AuctionInfo {
@@ -51,6 +53,57 @@ interface GameAsset {
   save: Function;
 }
 
+function addAuctionToDynamicPricesRegistry(auctionId: string): void {
+  let registry = DynamicPricesRegistry.load(pricesRegistryId);
+
+  if (registry) {
+    registry.auctions = registry.auctions.concat([auctionId]);
+    registry.save();
+  }
+}
+
+function removeAuctionFromDynamicPricesRegistry(auctionId: string): void {
+  let registry = DynamicPricesRegistry.load(pricesRegistryId);
+
+  if (registry) {
+    registry.auctions = registry.auctions.filter(id => id != auctionId);
+    registry.save();
+  }
+}
+
+function updateCurrentPrice(auctionId: string, timestamp: BigInt): boolean {
+  let auction = Auction.load(auctionId);
+
+  if (auction != null) {
+    let startPrice = auction.startPrice;
+    let endPrice = auction.endPrice;
+    let period = auction.period;
+    let created = auction.created;
+    let oneHourInSeconds = BigInt.fromI32(3600);
+    let fullPeriod = BigInt.fromI32(period).times(oneHourInSeconds);
+    let pastTime = timestamp.minus(created);
+
+    if (pastTime.ge(fullPeriod)) {
+      auction.currentPrice = endPrice;
+      auction.save();
+
+      return false;
+    }
+
+    let isIncreasingType = startPrice < endPrice;
+    let interval = isIncreasingType ? endPrice.minus(startPrice) : startPrice.minus(endPrice);
+    let priceChangingSpeed = interval.div(fullPeriod);
+    let diff = pastTime.times(priceChangingSpeed);
+
+    auction.currentPrice = isIncreasingType ? startPrice.plus(diff) : startPrice.minus(diff);
+    auction.save();
+
+    return true;
+  }
+
+  return false;
+}
+
 function createAuction<T extends GameAsset, K extends AuctionInfo>(entity: T | null, auctionInfo: K, auctionId: string, auctionType: string): void {
   if (entity != null && entity.owner != null && auctionInfo != null) {
     let auction = new Auction(auctionId);
@@ -58,6 +111,7 @@ function createAuction<T extends GameAsset, K extends AuctionInfo>(entity: T | n
     auction.type = auctionType;
     auction.currency = auctionInfo.value6 ? GoldCurrency : EtherCurrency;
     auction.status = ActiveAuctionStatus;
+    auction.currentPrice = auctionInfo.value1;
     auction.startPrice = auctionInfo.value2;
     auction.endPrice = auctionInfo.value3;
     auction.seller = entity.owner;
@@ -65,12 +119,15 @@ function createAuction<T extends GameAsset, K extends AuctionInfo>(entity: T | n
     auction.created = auctionInfo.value5;
     auction.save();
 
+    if (auction.startPrice != auction.endPrice) {
+      addAuctionToDynamicPricesRegistry(auctionId);
+    }
+
     entity.auction = auctionId;
     entity.save();
   }
 }
 
-// TODO: Handle ownership transferring or add entity.owner = buyer;
 function fulfillAuction<T extends GameAsset>(entity: T | null, buyer: Address, price: BigInt, timestamp: BigInt): void {
   if (entity != null && entity.auction != null) {
     let auction = Auction.load(entity.auction);
@@ -81,6 +138,10 @@ function fulfillAuction<T extends GameAsset>(entity: T | null, buyer: Address, p
       auction.purchasePrice = price;
       auction.ended = timestamp;
       auction.save();
+
+      if (auction.startPrice != auction.endPrice) {
+        removeAuctionFromDynamicPricesRegistry(entity.auction);
+      }
     }
 
     entity.auction = null;
@@ -96,6 +157,10 @@ function cancelAuction<T extends GameAsset>(entity: T | null, timestamp: BigInt)
       auction.status = CanceledAuctionStatus;
       auction.ended = timestamp;
       auction.save();
+
+      if (auction.startPrice != auction.endPrice) {
+        removeAuctionFromDynamicPricesRegistry(entity.auction);
+      }
     }
 
     entity.auction = null;
@@ -179,4 +244,17 @@ export function handleDragonBreedingBought(
   let dragon = Dragon.load(id);
 
   fulfillAuction<Dragon>(dragon, event.params.buyer, event.params.price, event.block.timestamp);
+}
+
+export function handleBlock(block: EthereumBlock): void {
+  let registry = DynamicPricesRegistry.load(pricesRegistryId);
+
+  if (registry != null && registry.auctions.length != 0) {
+    registry.auctions = registry.auctions.filter(auctionId => updateCurrentPrice(auctionId, block.timestamp));
+    registry.save();
+  } else {
+    registry = new DynamicPricesRegistry(pricesRegistryId);
+    registry.auctions = [];
+    registry.save();
+  }
 }

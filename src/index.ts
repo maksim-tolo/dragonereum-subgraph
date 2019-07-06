@@ -20,6 +20,7 @@ export {
   handleEggOnSale,
   handleEggRemovedFromSale,
   handleEggBought,
+  handleBlock,
 } from './market';
 export {
   handleGoldSellOrderCreated,

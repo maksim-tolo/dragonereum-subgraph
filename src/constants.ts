@@ -1,5 +1,6 @@
 export const getterAddress = '0xF88Fdb63dc782dAE646cD6c74728Ca83f56200E4'; // TODO: Use dynamic address
 export const nullAddress = '0x0000000000000000000000000000000000000000';
+export const pricesRegistryId = '0';
 
 export const DragonSaleAuctionType = 'dragonSale';
 export const EggSaleAuctionType = 'eggSale';

@@ -45,6 +45,7 @@ type Auction @entity {
   status: AuctionStatus!
   startPrice: BigInt!
   endPrice: BigInt!
+  currentPrice: BigInt!
   seller: User!
   period: Int!
   created: BigInt!
@@ -86,4 +87,9 @@ enum Currency {
 enum GoldOrderType {
   sell
   buy
+}
+
+type DynamicPricesRegistry @entity {
+  id: ID!
+  auctions: [Auction!]!
 }
