@@ -88,8 +88,3 @@ enum GoldOrderType {
   sell
   buy
 }
-
-type DynamicPricesRegistry @entity {
-  id: ID!
-  auctions: [Auction!]!
-}

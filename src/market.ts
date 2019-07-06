@@ -14,7 +14,6 @@ import {
   Auction,
   Dragon,
   Egg,
-  DynamicPricesRegistry,
 } from '../generated/schema';
 import {
   Getter,
@@ -32,8 +31,9 @@ import {
   FulfilledAuctionStatus,
   getterAddress,
   GoldCurrency,
-  pricesRegistryId,
 } from './constants';
+
+let dynamicPricesAuctionsIds: string[] = [];
 
 interface AuctionInfo {
   value0: Address; // seller
@@ -54,21 +54,11 @@ interface GameAsset {
 }
 
 function addAuctionToDynamicPricesRegistry(auctionId: string): void {
-  let registry = DynamicPricesRegistry.load(pricesRegistryId);
-
-  if (registry) {
-    registry.auctions = registry.auctions.concat([auctionId]);
-    registry.save();
-  }
+  dynamicPricesAuctionsIds = dynamicPricesAuctionsIds.concat([auctionId]);
 }
 
 function removeAuctionFromDynamicPricesRegistry(auctionId: string): void {
-  let registry = DynamicPricesRegistry.load(pricesRegistryId);
-
-  if (registry) {
-    registry.auctions = registry.auctions.filter(id => id != auctionId);
-    registry.save();
-  }
+  dynamicPricesAuctionsIds = dynamicPricesAuctionsIds.filter(id => id != auctionId);
 }
 
 function updateCurrentPrice(auctionId: string, timestamp: BigInt): boolean {
@@ -247,14 +237,7 @@ export function handleDragonBreedingBought(
 }
 
 export function handleBlock(block: EthereumBlock): void {
-  let registry = DynamicPricesRegistry.load(pricesRegistryId);
-
-  if (registry != null && registry.auctions.length != 0) {
-    registry.auctions = registry.auctions.filter(auctionId => updateCurrentPrice(auctionId, block.timestamp));
-    registry.save();
-  } else {
-    registry = new DynamicPricesRegistry(pricesRegistryId);
-    registry.auctions = [];
-    registry.save();
+  if (dynamicPricesAuctionsIds.length != 0) {
+    dynamicPricesAuctionsIds = dynamicPricesAuctionsIds.filter(auctionId => updateCurrentPrice(auctionId, block.timestamp));
   }
 }
