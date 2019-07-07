@@ -10,6 +10,9 @@ type User @entity {
 type Dragon @entity {
   id: ID!
   owner: User
+  types: [Int!]!
+  genome: [Int!]!
+  skills: DragonSkills!
   birthDay: BigInt!
   generation: Int!
   experience: Int!
@@ -44,8 +47,17 @@ type Egg @entity {
 
 type DragonTactics @entity {
   id: ID!
-  melee: Int
-  attack: Int
+  melee: Int!
+  attack: Int!
+}
+
+type DragonSkills @entity {
+  id: ID!
+  attack: BigInt!
+  defense: BigInt!
+  stamina: BigInt!
+  speed: BigInt!
+  intelligence: BigInt!
 }
 
 type Auction @entity {

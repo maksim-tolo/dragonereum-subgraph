@@ -23,6 +23,7 @@ import {
   Egg,
   User,
   DragonTactics,
+  DragonSkills,
 } from '../generated/schema';
 import { Getter } from '../generated/Events/Getter';
 import { getterAddress, nullAddress } from './constants';
@@ -73,10 +74,14 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let userId = event.params.user.toHex();
   let dragon = Dragon.load(dragonId) || new Dragon(dragonId);
   let tactics = DragonTactics.load(dragonId) || new DragonTactics(dragonId);
+  let skills = DragonSkills.load(dragonId) || new DragonSkills(dragonId);
   let egg = Egg.load(eggId);
   let tacticsValue = getter.getDragonTactics(event.params.dragonId);
   let parents = getter.getDragonParents(event.params.dragonId);
   let profile = getter.getDragonProfile(event.params.dragonId);
+  let types = getter.getDragonTypes(event.params.dragonId);
+  let genome = getter.getDragonGenome(event.params.dragonId);
+  let skillsValue = getter.getDragonSkills(event.params.dragonId);
 
   if (egg != null) {
     egg.isHatched = true;
@@ -90,6 +95,13 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   tactics.attack = tacticsValue.value1;
   tactics.save();
 
+  skills.attack = skillsValue.value0;
+  skills.defense = skillsValue.value1;
+  skills.stamina = skillsValue.value2;
+  skills.speed = skillsValue.value3;
+  skills.intelligence = skillsValue.value4;
+  skills.save();
+
   dragon.name = profile.value0.toString();
   dragon.generation = profile.value1;
   dragon.birthDay = profile.value2;
@@ -98,8 +110,11 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   dragon.dnaPoints = profile.value5;
   dragon.isBreedingAllowed = profile.value6;
   dragon.coolness = profile.value7;
+  dragon.types = types;
+  dragon.genome = genome;
   dragon.owner = userId;
   dragon.tactics = dragonId; // Reference to DragonTactics
+  dragon.skills = dragonId; // Reference to DragonSkills
   dragon.fromEgg = eggId;
   dragon.parents = parents.map<string>(id => id.toString());
   dragon.save();
