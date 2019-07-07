@@ -113,4 +113,6 @@ dataSources:
           handler: handleDragonTacticsSet
         - event: UserNameSet(indexed address,bytes32)
           handler: handleUserNameSet
+        - event: BattleEnded(indexed uint256,uint256,uint256,uint256,indexed uint256,indexed uint256,bool,uint256)
+          handler: handleBattleEnded
       file: ./src/index.ts

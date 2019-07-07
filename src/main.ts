@@ -12,6 +12,7 @@ import {
   DragonNameSet as DragonNameSetEvent,
   DragonTacticsSet as DragonTacticsSetEvent,
   UserNameSet as UserNameSetEvent,
+  BattleEnded as BattleEndedEvent,
   LeaderboardRewardsDistributed as LeaderboardRewardsDistributedEvent,
   DistributionUpdated as DistributionUpdatedEvent,
 } from '../generated/Events/Events';
@@ -27,13 +28,14 @@ import { Getter } from '../generated/Events/Getter';
 import { getterAddress, nullAddress } from './constants';
 
 // TODO: Add more default values
-function createEgg(id: BigInt, owner: Address): void {
+function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
   let eggId = id.toString();
   let egg = Egg.load(eggId) || new Egg(eggId);
   let getter = Getter.bind(Address.fromString(getterAddress));
   let eggDetails = getter.getEgg(id);
 
   egg.owner = owner.toHex();
+  egg.birthDay = timestamp;
   egg.isInNest = false;
   egg.isHatched = false;
   egg.generation = eggDetails.value0;
@@ -45,11 +47,11 @@ function createEgg(id: BigInt, owner: Address): void {
 }
 
 export function handleEggClaimed(event: EggClaimedEvent): void {
-  createEgg(event.params.id, event.params.user);
+  createEgg(event.params.id, event.params.user, event.block.timestamp);
 }
 
 export function handleEggCreated(event: EggCreatedEvent): void {
-  createEgg(event.params.id, event.params.user);
+  createEgg(event.params.id, event.params.user, event.block.timestamp);
 }
 
 export function handleEggSentToNest(event: EggSentToNestEvent): void {
@@ -58,6 +60,7 @@ export function handleEggSentToNest(event: EggSentToNestEvent): void {
 
   if (egg != null) {
     egg.isInNest = true;
+    egg.nestPlacementDate = event.block.timestamp;
     egg.save();
   }
 }
@@ -73,9 +76,11 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let egg = Egg.load(eggId);
   let tacticsValue = getter.getDragonTactics(event.params.dragonId);
   let parents = getter.getDragonParents(event.params.dragonId);
+  let profile = getter.getDragonProfile(event.params.dragonId);
 
   if (egg != null) {
     egg.isHatched = true;
+    egg.isInNest = false;
     egg.hatchedDragon = dragonId;
     egg.owner = null;
     egg.save();
@@ -85,6 +90,14 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   tactics.attack = tacticsValue.value1;
   tactics.save();
 
+  dragon.name = profile.value0.toString();
+  dragon.generation = profile.value1;
+  dragon.birthDay = profile.value2;
+  dragon.level = profile.value3;
+  dragon.experience = profile.value4;
+  dragon.dnaPoints = profile.value5;
+  dragon.isBreedingAllowed = profile.value6;
+  dragon.coolness = profile.value7;
   dragon.owner = userId;
   dragon.tactics = dragonId; // Reference to DragonTactics
   dragon.fromEgg = eggId;
@@ -163,4 +176,21 @@ export function handleEggTransfer(event: EggTransferEvent): void {
   }
 
   egg.save();
+}
+
+export function handleBattleEnded(event: BattleEndedEvent): void {
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let winnerId = event.params.winnerId.toString();
+  let winnerDragon = Dragon.load(winnerId);
+
+  if (winnerDragon) {
+    let profile = getter.getDragonProfile(event.params.winnerId);
+
+    winnerDragon.level = profile.value3;
+    winnerDragon.experience = profile.value4;
+    winnerDragon.dnaPoints = profile.value5;
+    winnerDragon.isBreedingAllowed = profile.value6;
+
+    winnerDragon.save();
+  }
 }

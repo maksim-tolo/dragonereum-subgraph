@@ -10,6 +10,13 @@ type User @entity {
 type Dragon @entity {
   id: ID!
   owner: User
+  birthDay: BigInt!
+  generation: Int!
+  experience: Int!
+  dnaPoints: Int!
+  coolness: BigInt!
+  isBreedingAllowed: Boolean!
+  level: Int!
   tactics: DragonTactics!
   auction: Auction
   name: String
@@ -22,8 +29,10 @@ type Dragon @entity {
 type Egg @entity {
   id: ID!
   owner: User
-  isInNest: Boolean
-  isHatched: Boolean
+  birthDay: BigInt!
+  isInNest: Boolean!
+  nestPlacementDate: BigInt
+  isHatched: Boolean!
   hatchedDragon: Dragon
   auction: Auction
   generation: Int!

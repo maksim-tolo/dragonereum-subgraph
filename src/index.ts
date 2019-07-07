@@ -9,6 +9,7 @@ export {
   handleUserNameSet,
   handleEggTransfer,
   handleDragonTransfer,
+  handleBattleEnded,
 } from './main';
 export {
   handleDragonOnSale,
