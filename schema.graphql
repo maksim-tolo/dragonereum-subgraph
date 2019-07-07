@@ -3,7 +3,8 @@ type User @entity {
   name: String
   dragons: [Dragon!] @derivedFrom(field: "owner")
   eggs: [Egg!] @derivedFrom(field: "owner")
-  goldAuction: GoldAuction
+  goldSellOffer: GoldAuction
+  goldBuyOffer: GoldAuction
 }
 
 type Dragon @entity {

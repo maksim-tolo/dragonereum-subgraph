@@ -19,6 +19,24 @@ import {
   SellGoldOrderType,
 } from './constants';
 
+function getAuctionId(user: User | null, orderType: string): string | null {
+  if (!user) {
+    return null;
+  }
+
+  return orderType == SellGoldOrderType ? user.goldSellOffer : user.goldBuyOffer;
+}
+
+function setAuctionId(user: User | null, orderType: string, value: string | null): void {
+  if (user) {
+    if (orderType == SellGoldOrderType) {
+      user.goldSellOffer = value;
+    } else {
+      user.goldBuyOffer = value;
+    }
+  }
+}
+
 function createGoldAuction(userId: string, auctionId: string, orderType: string, price: BigInt, amount: BigInt, timestamp: BigInt): void {
   let user = User.load(userId) || new User(userId);
   let goldAuction = new GoldAuction(auctionId);
@@ -31,50 +49,60 @@ function createGoldAuction(userId: string, auctionId: string, orderType: string,
   goldAuction.created = timestamp;
   goldAuction.save();
 
-  user.goldAuction = auctionId;
+  setAuctionId(user, orderType, auctionId);
   user.save();
 }
 
-function cancelGoldAuction(userId: string, timestamp: BigInt): void {
+function cancelGoldAuction(userId: string, timestamp: BigInt, orderType: string): void {
   let user = User.load(userId);
 
-  if (user != null && user.goldAuction != null) {
-    let goldAuction = GoldAuction.load(user.goldAuction);
+  if (user != null) {
+    let auctionId = getAuctionId(user, orderType);
 
-    if (goldAuction != null) {
-      goldAuction.status = CanceledAuctionStatus;
-      goldAuction.ended = timestamp;
-      goldAuction.save();
+    if (auctionId != null) {
+      let goldAuction = GoldAuction.load(auctionId);
+
+      if (goldAuction != null) {
+        goldAuction.status = CanceledAuctionStatus;
+        goldAuction.ended = timestamp;
+        goldAuction.save();
+      }
+
+      setAuctionId(user, orderType, null);
+      user.save();
     }
-
-    user.goldAuction = null;
-    user.save();
   }
 }
 
-function fulfillGoldAuction(userId: string, buyer: string, amount: BigInt, newAuctionId: string, timestamp: BigInt, txHash: string): void {
+function fulfillGoldAuction(userId: string, buyer: string, amount: BigInt, newAuctionId: string, timestamp: BigInt, txHash: string, orderType: string): void {
   let user = User.load(userId);
 
-  if (user != null && user.goldAuction != null) {
-    let goldAuction = GoldAuction.load(user.goldAuction);
+  if (user != null) {
+    let auctionId = getAuctionId(user, orderType);
 
-    if (goldAuction != null) {
-      goldAuction.status = FulfilledAuctionStatus;
-      goldAuction.ended = timestamp;
-      goldAuction.buyer = buyer;
-      goldAuction.purchaseAmount = amount;
-      goldAuction.txHash = txHash;
-      goldAuction.save();
+    if (auctionId != null) {
+      let goldAuction = GoldAuction.load(auctionId);
 
-      if (goldAuction.amount.notEqual(amount)) {
-        createGoldAuction(userId, newAuctionId, goldAuction.type, goldAuction.price, goldAuction.amount.minus(amount), timestamp);
+      if (goldAuction != null) {
+        let restAmount = goldAuction.amount.minus(amount);
+
+        goldAuction.status = FulfilledAuctionStatus;
+        goldAuction.ended = timestamp;
+        goldAuction.buyer = buyer;
+        goldAuction.purchaseAmount = amount;
+        goldAuction.txHash = txHash;
+        goldAuction.save();
+
+        if (restAmount.gt(BigInt.fromI32(0))) {
+          createGoldAuction(userId, newAuctionId, orderType, goldAuction.price, restAmount, timestamp);
+        } else {
+          setAuctionId(user, orderType, null);
+          user.save();
+        }
       } else {
-        user.goldAuction = null;
+        setAuctionId(user, orderType, null);
         user.save();
       }
-    } else {
-      user.goldAuction = null;
-      user.save();
     }
   }
 }
@@ -93,7 +121,7 @@ export function handleGoldSellOrderCancelled(
 ): void {
   let seller = event.params.seller.toHex();
 
-  cancelGoldAuction(seller, event.block.timestamp);
+  cancelGoldAuction(seller, event.block.timestamp, SellGoldOrderType);
 }
 
 export function handleGoldSold(event: GoldSoldEvent): void {
@@ -102,7 +130,7 @@ export function handleGoldSold(event: GoldSoldEvent): void {
   let txHash = event.transaction.hash.toHex();
   let newAuctionId = txHash + '-' + event.logIndex.toString();
 
-  fulfillGoldAuction(seller, buyer, event.params.amount, newAuctionId, event.block.timestamp, txHash);
+  fulfillGoldAuction(seller, buyer, event.params.amount, newAuctionId, event.block.timestamp, txHash, SellGoldOrderType);
 }
 
 export function handleGoldBuyOrderCreated(
@@ -119,7 +147,7 @@ export function handleGoldBuyOrderCancelled(
 ): void {
   let buyer = event.params.buyer.toHex();
 
-  cancelGoldAuction(buyer, event.block.timestamp);
+  cancelGoldAuction(buyer, event.block.timestamp, BuyGoldOrderType);
 }
 
 export function handleGoldBought(event: GoldBoughtEvent): void {
@@ -128,5 +156,5 @@ export function handleGoldBought(event: GoldBoughtEvent): void {
   let txHash = event.transaction.hash.toHex();
   let newAuctionId = txHash + '-' + event.logIndex.toString();
 
-  fulfillGoldAuction(buyer, seller, event.params.amount, newAuctionId, event.block.timestamp, txHash);
+  fulfillGoldAuction(buyer, seller, event.params.amount, newAuctionId, event.block.timestamp, txHash, BuyGoldOrderType);
 }
