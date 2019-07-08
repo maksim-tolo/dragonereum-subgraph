@@ -28,6 +28,9 @@ type Dragon @entity {
   eggsChildren: [Egg!] @derivedFrom(field: "parents")
   fromEgg: Egg!
   healthAndMana: DragonHealthAndMana!
+  battlesStat: BattlesStat!
+  specialAttack: DragonSpecialAttack!
+  specialDefense: DragonSpecialDefense!
 }
 
 type Egg @entity {
@@ -52,6 +55,12 @@ type DragonTactics @entity {
   attack: Int!
 }
 
+type BattlesStat @entity {
+  id: ID!
+  wins: Int!
+  defeats: Int!
+}
+
 type DragonSkills @entity {
   id: ID!
   attack: BigInt!
@@ -59,6 +68,22 @@ type DragonSkills @entity {
   stamina: BigInt!
   speed: BigInt!
   intelligence: BigInt!
+}
+
+type DragonSpecialAttack @entity {
+  id: ID!
+  dragonType: Int!
+  cost: BigInt!
+  factor: Int!
+  chance: Int!
+}
+
+type DragonSpecialDefense @entity {
+  id: ID!
+  dragonType: Int!
+  cost: BigInt!
+  factor: Int!
+  chance: Int!
 }
 
 type DragonHealthAndMana @entity {
