@@ -10,11 +10,7 @@ import {
   EggRemovedFromSale as EggRemovedFromSaleEvent,
   EggBought as EggBoughtEvent,
 } from '../generated/Events/Events';
-import {
-  Auction,
-  Dragon,
-  Egg,
-} from '../generated/schema';
+import { Auction, Dragon, Egg } from '../generated/schema';
 import {
   Getter,
   Getter__getDragonOnSaleInfoResult as DragonSaleInfo,
@@ -58,7 +54,9 @@ function addAuctionToDynamicPricesRegistry(auctionId: string): void {
 }
 
 function removeAuctionFromDynamicPricesRegistry(auctionId: string): void {
-  dynamicPricesAuctionsIds = dynamicPricesAuctionsIds.filter(id => id != auctionId);
+  dynamicPricesAuctionsIds = dynamicPricesAuctionsIds.filter(
+    id => id != auctionId,
+  );
 }
 
 function updateCurrentPrice(auctionId: string, timestamp: BigInt): boolean {
@@ -81,11 +79,15 @@ function updateCurrentPrice(auctionId: string, timestamp: BigInt): boolean {
     }
 
     let isIncreasingType = startPrice < endPrice;
-    let interval = isIncreasingType ? endPrice.minus(startPrice) : startPrice.minus(endPrice);
+    let interval = isIncreasingType
+      ? endPrice.minus(startPrice)
+      : startPrice.minus(endPrice);
     let priceChangingSpeed = interval.div(fullPeriod);
     let diff = pastTime.times(priceChangingSpeed);
 
-    auction.currentPrice = isIncreasingType ? startPrice.plus(diff) : startPrice.minus(diff);
+    auction.currentPrice = isIncreasingType
+      ? startPrice.plus(diff)
+      : startPrice.minus(diff);
     auction.save();
 
     return true;
@@ -94,7 +96,12 @@ function updateCurrentPrice(auctionId: string, timestamp: BigInt): boolean {
   return false;
 }
 
-function createAuction<T extends ERC721Token, K extends AuctionInfo>(token: T | null, auctionInfo: K, auctionId: string, auctionType: string): void {
+function createAuction<T extends ERC721Token, K extends AuctionInfo>(
+  token: T | null,
+  auctionInfo: K,
+  auctionId: string,
+  auctionType: string,
+): void {
   if (token != null && token.owner != null && auctionInfo != null) {
     let auction = new Auction(auctionId);
 
@@ -118,7 +125,13 @@ function createAuction<T extends ERC721Token, K extends AuctionInfo>(token: T | 
   }
 }
 
-function fulfillAuction<T extends ERC721Token>(token: T | null, buyer: Address, price: BigInt, timestamp: BigInt, txHash: string): void {
+function fulfillAuction<T extends ERC721Token>(
+  token: T | null,
+  buyer: Address,
+  price: BigInt,
+  timestamp: BigInt,
+  txHash: string,
+): void {
   if (token != null && token.auction != null) {
     let auction = Auction.load(token.auction);
 
@@ -140,7 +153,10 @@ function fulfillAuction<T extends ERC721Token>(token: T | null, buyer: Address, 
   }
 }
 
-function cancelAuction<T extends ERC721Token>(token: T | null, timestamp: BigInt): void {
+function cancelAuction<T extends ERC721Token>(
+  token: T | null,
+  timestamp: BigInt,
+): void {
   if (token != null && token.auction != null) {
     let auction = Auction.load(token.auction);
 
@@ -162,11 +178,17 @@ function cancelAuction<T extends ERC721Token>(token: T | null, timestamp: BigInt
 export function handleEggOnSale(event: EggOnSaleEvent): void {
   let id = event.params.id.toString();
   let egg = Egg.load(id);
-  let auctionId = event.transaction.hash.toHex() + '-' + event.logIndex.toString();
+  let auctionId =
+    event.transaction.hash.toHex() + '-' + event.logIndex.toString();
   let getter = Getter.bind(Address.fromString(getterAddress));
   let auctionInfo = getter.getEggOnSaleInfo(event.params.id);
 
-  createAuction<Egg, EggSaleInfo>(egg, auctionInfo, auctionId, EggSaleAuctionType);
+  createAuction<Egg, EggSaleInfo>(
+    egg,
+    auctionInfo,
+    auctionId,
+    EggSaleAuctionType,
+  );
 
   let auction = Auction.load(auctionId);
 
@@ -179,11 +201,17 @@ export function handleEggOnSale(event: EggOnSaleEvent): void {
 export function handleDragonOnSale(event: DragonOnSaleEvent): void {
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
-  let auctionId = event.transaction.hash.toHex() + '-' + event.logIndex.toString();
+  let auctionId =
+    event.transaction.hash.toHex() + '-' + event.logIndex.toString();
   let getter = Getter.bind(Address.fromString(getterAddress));
   let auctionInfo = getter.getDragonOnSaleInfo(event.params.id);
 
-  createAuction<Dragon, DragonSaleInfo>(dragon, auctionInfo, auctionId, DragonSaleAuctionType);
+  createAuction<Dragon, DragonSaleInfo>(
+    dragon,
+    auctionInfo,
+    auctionId,
+    DragonSaleAuctionType,
+  );
 
   let auction = Auction.load(auctionId);
 
@@ -196,11 +224,17 @@ export function handleDragonOnSale(event: DragonOnSaleEvent): void {
 export function handleDragonOnBreeding(event: DragonOnBreedingEvent): void {
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
-  let auctionId = event.transaction.hash.toHex() + '-' + event.logIndex.toString();
+  let auctionId =
+    event.transaction.hash.toHex() + '-' + event.logIndex.toString();
   let getter = Getter.bind(Address.fromString(getterAddress));
   let auctionInfo = getter.getBreedingOnSaleInfo(event.params.id);
 
-  createAuction<Dragon, DragonBreedingSaleInfo>(dragon, auctionInfo, auctionId, DragonBreedingAuctionType);
+  createAuction<Dragon, DragonBreedingSaleInfo>(
+    dragon,
+    auctionInfo,
+    auctionId,
+    DragonBreedingAuctionType,
+  );
 
   let auction = Auction.load(auctionId);
 
@@ -218,7 +252,7 @@ export function handleEggRemovedFromSale(event: EggRemovedFromSaleEvent): void {
 }
 
 export function handleDragonRemovedFromSale(
-  event: DragonRemovedFromSaleEvent
+  event: DragonRemovedFromSaleEvent,
 ): void {
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
@@ -227,7 +261,7 @@ export function handleDragonRemovedFromSale(
 }
 
 export function handleDragonRemovedFromBreeding(
-  event: DragonRemovedFromBreedingEvent
+  event: DragonRemovedFromBreedingEvent,
 ): void {
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
@@ -240,7 +274,13 @@ export function handleEggBought(event: EggBoughtEvent): void {
   let egg = Egg.load(id);
   let txHash = event.transaction.hash.toHex();
 
-  fulfillAuction<Egg>(egg, event.params.buyer, event.params.price, event.block.timestamp, txHash);
+  fulfillAuction<Egg>(
+    egg,
+    event.params.buyer,
+    event.params.price,
+    event.block.timestamp,
+    txHash,
+  );
 }
 
 export function handleDragonBought(event: DragonBoughtEvent): void {
@@ -248,21 +288,35 @@ export function handleDragonBought(event: DragonBoughtEvent): void {
   let dragon = Dragon.load(id);
   let txHash = event.transaction.hash.toHex();
 
-  fulfillAuction<Dragon>(dragon, event.params.buyer, event.params.price, event.block.timestamp, txHash);
+  fulfillAuction<Dragon>(
+    dragon,
+    event.params.buyer,
+    event.params.price,
+    event.block.timestamp,
+    txHash,
+  );
 }
 
 export function handleDragonBreedingBought(
-  event: DragonBreedingBoughtEvent
+  event: DragonBreedingBoughtEvent,
 ): void {
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
   let txHash = event.transaction.hash.toHex();
 
-  fulfillAuction<Dragon>(dragon, event.params.buyer, event.params.price, event.block.timestamp, txHash);
+  fulfillAuction<Dragon>(
+    dragon,
+    event.params.buyer,
+    event.params.price,
+    event.block.timestamp,
+    txHash,
+  );
 }
 
 export function handleBlock(block: EthereumBlock): void {
   if (dynamicPricesAuctionsIds.length != 0) {
-    dynamicPricesAuctionsIds = dynamicPricesAuctionsIds.filter(auctionId => updateCurrentPrice(auctionId, block.timestamp));
+    dynamicPricesAuctionsIds = dynamicPricesAuctionsIds.filter(auctionId =>
+      updateCurrentPrice(auctionId, block.timestamp),
+    );
   }
 }

@@ -74,7 +74,8 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let dragon = Dragon.load(dragonId) || new Dragon(dragonId);
   let tactics = DragonTactics.load(dragonId) || new DragonTactics(dragonId);
   let skills = DragonSkills.load(dragonId) || new DragonSkills(dragonId);
-  let healthAndMana = DragonHealthAndMana.load(dragonId) || new DragonHealthAndMana(dragonId);
+  let healthAndMana =
+    DragonHealthAndMana.load(dragonId) || new DragonHealthAndMana(dragonId);
   let egg = Egg.load(eggId);
   let tacticsValue = getter.getDragonTactics(event.params.dragonId);
   let parents = getter.getDragonParents(event.params.dragonId);
@@ -82,7 +83,9 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let types = getter.getDragonTypes(event.params.dragonId);
   let genome = getter.getDragonGenome(event.params.dragonId);
   let skillsValue = getter.getDragonSkills(event.params.dragonId);
-  let healthAndManaValues = getter.getDragonHealthAndMana(event.params.dragonId);
+  let healthAndManaValues = getter.getDragonHealthAndMana(
+    event.params.dragonId,
+  );
 
   if (egg != null) {
     egg.isHatched = true;
