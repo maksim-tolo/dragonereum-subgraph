@@ -20,7 +20,7 @@ import {
 } from './constants';
 
 function getAuctionId(user: User | null, orderType: string): string | null {
-  if (!user) {
+  if (user == null) {
     return null;
   }
 
@@ -28,7 +28,7 @@ function getAuctionId(user: User | null, orderType: string): string | null {
 }
 
 function setAuctionId(user: User | null, orderType: string, value: string | null): void {
-  if (user) {
+  if (user != null) {
     if (orderType == SellGoldOrderType) {
       user.goldSellOffer = value;
     } else {

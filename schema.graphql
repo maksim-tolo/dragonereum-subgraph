@@ -27,6 +27,7 @@ type Dragon @entity {
   dragonsChildren: [Dragon!] @derivedFrom(field: "parents")
   eggsChildren: [Egg!] @derivedFrom(field: "parents")
   fromEgg: Egg!
+  healthAndMana: DragonHealthAndMana!
 }
 
 type Egg @entity {
@@ -58,6 +59,13 @@ type DragonSkills @entity {
   stamina: BigInt!
   speed: BigInt!
   intelligence: BigInt!
+}
+
+type DragonHealthAndMana @entity {
+  id: ID!
+  timestamp: BigInt!
+  maxHealth: BigInt!
+  maxMana: BigInt!
 }
 
 type Auction @entity {

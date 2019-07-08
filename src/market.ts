@@ -170,7 +170,7 @@ export function handleEggOnSale(event: EggOnSaleEvent): void {
 
   let auction = Auction.load(auctionId);
 
-  if (auction) {
+  if (auction != null) {
     auction.egg = id;
     auction.save();
   }
@@ -187,7 +187,7 @@ export function handleDragonOnSale(event: DragonOnSaleEvent): void {
 
   let auction = Auction.load(auctionId);
 
-  if (auction) {
+  if (auction != null) {
     auction.dragon = id;
     auction.save();
   }
@@ -204,7 +204,7 @@ export function handleDragonOnBreeding(event: DragonOnBreedingEvent): void {
 
   let auction = Auction.load(auctionId);
 
-  if (auction) {
+  if (auction != null) {
     auction.dragon = id;
     auction.save();
   }
