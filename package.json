@@ -1,6 +1,15 @@
 {
   "name": "@dragonereum/subgraph",
+  "description": "Subgraph for Dragonereum blockchain game",
+  "version": "1.0.0",
   "license": "WTFPL",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maksim-tolo/dragonereum-subgraph.git"
+  },
+  "bugs": {
+    "url": "https://github.com/maksim-tolo/dragonereum-subgraph/issues"
+  },
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
