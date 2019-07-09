@@ -35,6 +35,45 @@ import {
 import { Getter } from '../generated/Events/Getter';
 import { getterAddress, nullAddress } from './constants';
 
+function updateHealthAndMana(dragonId: BigInt): void {
+  let dragonIdStr = dragonId.toString();
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let healthAndMana =
+    DragonHealthAndMana.load(dragonIdStr) ||
+    new DragonHealthAndMana(dragonIdStr);
+  let healthAndManaValues = getter.getDragonHealthAndMana(dragonId);
+
+  healthAndMana.timestamp = healthAndManaValues.value0;
+  healthAndMana.maxHealth = healthAndManaValues.value3;
+  healthAndMana.maxMana = healthAndManaValues.value4;
+  healthAndMana.save();
+}
+
+function updateSpecialBattleSkills(dragonId: BigInt): void {
+  let dragonIdStr = dragonId.toString();
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let specialAttack =
+    DragonSpecialAttack.load(dragonIdStr) ||
+    new DragonSpecialAttack(dragonIdStr);
+  let specialDefense =
+    DragonSpecialDefense.load(dragonIdStr) ||
+    new DragonSpecialDefense(dragonIdStr);
+  let specialAttackValue = getter.getDragonSpecialAttack(dragonId);
+  let specialDefenseValue = getter.getDragonSpecialDefense(dragonId);
+
+  specialAttack.dragonType = specialAttackValue.value0;
+  specialAttack.cost = specialAttackValue.value1;
+  specialAttack.factor = specialAttackValue.value2;
+  specialAttack.chance = specialAttackValue.value3;
+  specialAttack.save();
+
+  specialDefense.dragonType = specialDefenseValue.value0;
+  specialDefense.cost = specialDefenseValue.value1;
+  specialDefense.factor = specialDefenseValue.value2;
+  specialDefense.chance = specialDefenseValue.value3;
+  specialDefense.save();
+}
+
 function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
   let eggId = id.toString();
   let egg = Egg.load(eggId) || new Egg(eggId);
@@ -96,15 +135,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let skills = DragonSkills.load(dragonIdStr) || new DragonSkills(dragonIdStr);
   let battlesStat =
     BattlesStat.load(dragonIdStr) || new BattlesStat(dragonIdStr);
-  let specialAttack =
-    DragonSpecialAttack.load(dragonIdStr) ||
-    new DragonSpecialAttack(dragonIdStr);
-  let specialDefense =
-    DragonSpecialDefense.load(dragonIdStr) ||
-    new DragonSpecialDefense(dragonIdStr);
-  let healthAndMana =
-    DragonHealthAndMana.load(dragonIdStr) ||
-    new DragonHealthAndMana(dragonIdStr);
+
   let egg = Egg.load(eggId);
   let tacticsValue = getter.getDragonTactics(dragonId);
   let parents = getter.getDragonParents(dragonId);
@@ -112,9 +143,6 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let types = getter.getDragonTypes(dragonId);
   let genome = getter.getDragonGenome(dragonId);
   let skillsValue = getter.getDragonSkills(dragonId);
-  let healthAndManaValues = getter.getDragonHealthAndMana(dragonId);
-  let specialAttackValue = getter.getDragonSpecialAttack(dragonId);
-  let specialDefenseValue = getter.getDragonSpecialDefense(dragonId);
   let buffs = getter.getDragonBuffs(dragonId);
 
   if (egg != null) {
@@ -136,26 +164,12 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   skills.intelligence = skillsValue.value4;
   skills.save();
 
-  healthAndMana.timestamp = healthAndManaValues.value0;
-  healthAndMana.maxHealth = healthAndManaValues.value3;
-  healthAndMana.maxMana = healthAndManaValues.value4;
-  healthAndMana.save();
+  updateHealthAndMana(dragonId);
+  updateSpecialBattleSkills(dragonId);
 
   battlesStat.wins = 0;
   battlesStat.defeats = 0;
   battlesStat.save();
-
-  specialAttack.dragonType = specialAttackValue.value0;
-  specialAttack.cost = specialAttackValue.value1;
-  specialAttack.factor = specialAttackValue.value2;
-  specialAttack.chance = specialAttackValue.value3;
-  specialAttack.save();
-
-  specialDefense.dragonType = specialDefenseValue.value0;
-  specialDefense.cost = specialDefenseValue.value1;
-  specialDefense.factor = specialDefenseValue.value2;
-  specialDefense.chance = specialDefenseValue.value3;
-  specialDefense.save();
 
   dragon.name = profile.value0.toString();
   dragon.generation = profile.value1;
@@ -185,16 +199,10 @@ export function handleDragonUpgraded(event: DragonUpgradedEvent): void {
   let idStr = id.toString();
   let dragon = Dragon.load(idStr);
   let skills = DragonSkills.load(idStr);
-  let healthAndMana = DragonHealthAndMana.load(idStr);
-  let specialAttack = DragonSpecialAttack.load(idStr);
-  let specialDefense = DragonSpecialDefense.load(idStr);
   let getter = Getter.bind(Address.fromString(getterAddress));
   let profile = getter.getDragonProfile(id);
   let genome = getter.getDragonGenome(id);
   let skillsValue = getter.getDragonSkills(id);
-  let healthAndManaValues = getter.getDragonHealthAndMana(id);
-  let specialAttackValue = getter.getDragonSpecialAttack(id);
-  let specialDefenseValue = getter.getDragonSpecialDefense(id);
 
   if (dragon != null) {
     dragon.dnaPoints = profile.value5;
@@ -213,28 +221,8 @@ export function handleDragonUpgraded(event: DragonUpgradedEvent): void {
     skills.save();
   }
 
-  if (healthAndMana != null) {
-    healthAndMana.timestamp = healthAndManaValues.value0;
-    healthAndMana.maxHealth = healthAndManaValues.value3;
-    healthAndMana.maxMana = healthAndManaValues.value4;
-    healthAndMana.save();
-  }
-
-  if (specialAttack != null) {
-    specialAttack.dragonType = specialAttackValue.value0;
-    specialAttack.cost = specialAttackValue.value1;
-    specialAttack.factor = specialAttackValue.value2;
-    specialAttack.chance = specialAttackValue.value3;
-    specialAttack.save();
-  }
-
-  if (specialDefense != null) {
-    specialDefense.dragonType = specialDefenseValue.value0;
-    specialDefense.cost = specialDefenseValue.value1;
-    specialDefense.factor = specialDefenseValue.value2;
-    specialDefense.chance = specialDefenseValue.value3;
-    specialDefense.save();
-  }
+  updateHealthAndMana(id);
+  updateSpecialBattleSkills(id);
 }
 
 export function handleDragonNameSet(event: DragonNameSetEvent): void {
@@ -311,9 +299,7 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
 
   if (winnerDragon != null) {
     let profile = getter.getDragonProfile(winnerId);
-    let healthAndMana = DragonHealthAndMana.load(winnerIdStr);
     let battlesStat = BattlesStat.load(winnerIdStr);
-    let healthAndManaValues = getter.getDragonHealthAndMana(winnerId);
     let buffs = getter.getDragonBuffs(winnerId);
 
     winnerDragon.level = profile.value3;
@@ -323,10 +309,8 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
     winnerDragon.buffs = buffs;
     winnerDragon.save();
 
-    if (healthAndMana != null) {
-      healthAndMana.timestamp = healthAndManaValues.value0;
-      healthAndMana.save();
-    }
+    updateHealthAndMana(winnerId);
+    updateSpecialBattleSkills(winnerId);
 
     if (battlesStat != null) {
       battlesStat.wins = battlesStat.wins + 1;
@@ -335,18 +319,14 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   }
 
   if (looserDragon != null) {
-    let healthAndMana = DragonHealthAndMana.load(looserIdStr);
     let battlesStat = BattlesStat.load(looserIdStr);
-    let healthAndManaValues = getter.getDragonHealthAndMana(looserId);
     let buffs = getter.getDragonBuffs(looserId);
 
     looserDragon.buffs = buffs;
     looserDragon.save();
 
-    if (healthAndMana != null) {
-      healthAndMana.timestamp = healthAndManaValues.value0;
-      healthAndMana.save();
-    }
+    updateHealthAndMana(looserId);
+    updateSpecialBattleSkills(looserId);
 
     if (battlesStat != null) {
       battlesStat.defeats = battlesStat.defeats + 1;
@@ -385,44 +365,33 @@ export function handleSkillUsed(event: SkillUsedEvent): void {
   let getter = Getter.bind(Address.fromString(getterAddress));
   let dragonId = event.params.id;
   let dragonIdStr = dragonId.toString();
-  let dragon = Dragon.load(dragonIdStr);
   let targetDragonId = event.params.target;
   let targetDragonIdStr = targetDragonId.toString();
-  let targetDragon = Dragon.load(targetDragonIdStr);
+  let dragon = Dragon.load(dragonIdStr);
   let specialPeacefulSkill = DragonSpecialPeacefulSkill.load(dragonIdStr);
-  let healthAndMana = DragonHealthAndMana.load(dragonIdStr);
-  let targetHealthAndMana = DragonHealthAndMana.load(targetDragonIdStr);
+
+  if (specialPeacefulSkill != null) {
+    specialPeacefulSkill.usageDate = event.block.timestamp;
+    specialPeacefulSkill.save();
+  }
 
   if (dragon != null) {
     dragon.buffs = getter.getDragonBuffs(dragonId);
     dragon.save();
   }
 
-  if (targetDragon != null) {
-    targetDragon.buffs = getter.getDragonBuffs(targetDragonId);
-    targetDragon.save();
-  }
+  updateHealthAndMana(dragonId);
+  updateSpecialBattleSkills(dragonId);
 
-  if (healthAndMana != null) {
-    let healthAndManaValues = getter.getDragonHealthAndMana(dragonId);
+  if (targetDragonIdStr != dragonIdStr) {
+    let targetDragon = Dragon.load(targetDragonIdStr);
 
-    healthAndMana.timestamp = healthAndManaValues.value0;
-    healthAndMana.maxHealth = healthAndManaValues.value3;
-    healthAndMana.maxMana = healthAndManaValues.value4;
-    healthAndMana.save();
-  }
+    if (targetDragon != null) {
+      targetDragon.buffs = getter.getDragonBuffs(targetDragonId);
+      targetDragon.save();
+    }
 
-  if (targetHealthAndMana != null) {
-    let healthAndManaValues = getter.getDragonHealthAndMana(targetDragonId);
-
-    targetHealthAndMana.timestamp = healthAndManaValues.value0;
-    targetHealthAndMana.maxHealth = healthAndManaValues.value3;
-    targetHealthAndMana.maxMana = healthAndManaValues.value4;
-    targetHealthAndMana.save();
-  }
-
-  if (specialPeacefulSkill != null) {
-    specialPeacefulSkill.usageDate = event.block.timestamp;
-    specialPeacefulSkill.save();
+    updateHealthAndMana(targetDragonId);
+    updateSpecialBattleSkills(targetDragonId);
   }
 }
