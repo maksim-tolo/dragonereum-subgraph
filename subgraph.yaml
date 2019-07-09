@@ -60,6 +60,11 @@ dataSources:
         - DragonSkills
         - Auction
         - GoldAuction
+        - BattlesStat
+        - DragonSpecialAttack
+        - DragonSpecialDefense
+        - DragonHealthAndMana
+        - DragonSpecialPeacefulSkill
       abis:
         - name: Events
           file: ./abis/Events.json
@@ -116,4 +121,8 @@ dataSources:
           handler: handleUserNameSet
         - event: BattleEnded(indexed uint256,uint256,uint256,uint256,indexed uint256,indexed uint256,bool,uint256)
           handler: handleBattleEnded
+        - event: SkillSet(indexed uint256)
+          handler: handleSkillSet
+        - event: SkillUsed(indexed uint256,indexed uint256)
+          handler: handleSkillUsed
       file: ./src/index.ts

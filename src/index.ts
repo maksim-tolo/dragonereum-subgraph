@@ -10,6 +10,8 @@ export {
   handleEggTransfer,
   handleDragonTransfer,
   handleBattleEnded,
+  handleSkillSet,
+  handleSkillUsed,
 } from './main';
 export {
   handleDragonOnSale,

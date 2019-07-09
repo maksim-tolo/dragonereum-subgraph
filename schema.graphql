@@ -31,6 +31,8 @@ type Dragon @entity {
   battlesStat: BattlesStat!
   specialAttack: DragonSpecialAttack!
   specialDefense: DragonSpecialDefense!
+  specialPeacefulSkill: DragonSpecialPeacefulSkill
+  buffs: [BigInt!]!
 }
 
 type Egg @entity {
@@ -84,6 +86,14 @@ type DragonSpecialDefense @entity {
   cost: BigInt!
   factor: Int!
   chance: Int!
+}
+
+type DragonSpecialPeacefulSkill @entity {
+  id: ID!
+  skillClass: Int!
+  cost: BigInt!
+  effect: BigInt!
+  usageDate: BigInt
 }
 
 type DragonHealthAndMana @entity {
