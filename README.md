@@ -100,3 +100,78 @@
   }
 }
 ```
+### Get dragon details
+```graphql
+{
+  dragon(id: "2551") {
+    id
+    owner {
+      id
+      name
+    }
+    types
+    genome
+    skills {
+      attack
+      defense
+      stamina
+      speed
+      intelligence
+    }
+    birthDay
+    generation
+    experience
+    dnaPoints
+    coolness
+    isBreedingAllowed
+    level
+    tactics {
+      attack
+      melee
+    }
+    auction {
+      currency
+      startPrice
+      endPrice
+      period
+      created
+    }
+    name
+    parents {
+      id
+    }
+    dragonsChildren {
+      id
+      types
+      genome
+    }
+    eggsChildren {
+      id
+      isHatched
+      momDragonTypes
+      dadDragonTypes
+    }
+    healthAndMana {
+      maxHealth
+      maxMana
+      timestamp
+    }
+    battlesStat {
+      wins
+      defeats
+    }
+    specialAttack {
+      dragonType
+  		cost
+  		factor
+  		chance
+    }
+    specialDefense {
+      dragonType
+  		cost
+  		factor
+  		chance
+    }
+  }
+}
+```
