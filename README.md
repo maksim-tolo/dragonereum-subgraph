@@ -162,15 +162,15 @@
     }
     specialAttack {
       dragonType
-  		cost
-  		factor
-  		chance
+      cost
+      factor
+      chance
     }
     specialDefense {
       dragonType
-  		cost
-  		factor
-  		chance
+      cost
+      factor
+      chance
     }
   }
 }
