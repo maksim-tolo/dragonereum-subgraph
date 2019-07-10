@@ -1,7 +1,11 @@
+## Dapp
+Subgraph integration is currently in progress.
+The latest updates are available by the following url https://dragonereum-alpha-test.web.app/.
+Subgraph has been added only to the gold marketplace at the moment.
 ## Queries
 ### Get eggs for sale
 ```graphql
-query Auction($first: Int, $skip: Int) {
+query Auction($first: Int!, $skip: Int!) {
   auctions(first: $first, skip: $skip, where: { status: active, type: eggSale }) {
     currency
     startPrice
@@ -20,7 +24,7 @@ query Auction($first: Int, $skip: Int) {
 ```
 ### Get dragons for sale
 ```graphql
-query Auction($first: Int, $skip: Int) {
+query Auction($first: Int!, $skip: Int!) {
   auctions(first: $first, skip: $skip, where: { status: active, type: dragonSale }) {
     currency
     startPrice
@@ -47,7 +51,7 @@ query Auction($first: Int, $skip: Int) {
 ```
 ### Get dragons for breeding
 ```graphql
-query Auction($first: Int, $skip: Int) {
+query Auction($first: Int!, $skip: Int!) {
   auctions(first: $first, skip: $skip, where: { status: active, type: dragonBreeding }) {
     currency
     startPrice
@@ -74,7 +78,7 @@ query Auction($first: Int, $skip: Int) {
 ```
 ### Get gold selling orders
 ```graphql
-query GoldAuctions($first: Int, $skip: Int) {
+query GoldAuctions($first: Int!, $skip: Int!) {
   goldAuctions(first: $first, skip: $skip, where: { status: active, type: sell }) {
     id
     seller {
@@ -88,7 +92,7 @@ query GoldAuctions($first: Int, $skip: Int) {
 ```
 ### Get gold buying orders
 ```graphql
-query GoldAuctions($first: Int, $skip: Int) {
+query GoldAuctions($first: Int!, $skip: Int!) {
   goldAuctions(first: $first, skip: $skip, where: { status: active, type: buy }) {
     id
     seller {
