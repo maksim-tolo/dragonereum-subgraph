@@ -1,8 +1,8 @@
 ## Queries
 ### Get eggs for sale
 ```graphql
-{
-  auctions(where: {status: active, type: eggSale}) {
+query Auction($first: Int, $skip: Int) {
+  auctions(first: $first, skip: $skip, where: { status: active, type: eggSale }) {
     currency
     startPrice
     endPrice
@@ -20,8 +20,8 @@
 ```
 ### Get dragons for sale
 ```graphql
-{
-  auctions(where: {status: active, type: dragonSale}) {
+query Auction($first: Int, $skip: Int) {
+  auctions(first: $first, skip: $skip, where: { status: active, type: dragonSale }) {
     currency
     startPrice
     endPrice
@@ -47,8 +47,8 @@
 ```
 ### Get dragons for breeding
 ```graphql
-{
-  auctions(where: {status: active, type: dragonBreeding}) {
+query Auction($first: Int, $skip: Int) {
+  auctions(first: $first, skip: $skip, where: { status: active, type: dragonBreeding }) {
     currency
     startPrice
     endPrice
@@ -74,8 +74,8 @@
 ```
 ### Get gold selling orders
 ```graphql
-{
-  goldAuctions(where: {status: active, type: sell}) {
+query GoldAuctions($first: Int, $skip: Int) {
+  goldAuctions(first: $first, skip: $skip, where: { status: active, type: sell }) {
     id
     seller {
       id
@@ -88,8 +88,8 @@
 ```
 ### Get gold buying orders
 ```graphql
-{
-  goldAuctions(where: {status: active, type: buy}) {
+query GoldAuctions($first: Int, $skip: Int) {
+  goldAuctions(first: $first, skip: $skip, where: { status: active, type: buy }) {
     id
     seller {
       id
@@ -102,8 +102,8 @@
 ```
 ### Get dragon details
 ```graphql
-{
-  dragon(id: "2551") {
+query Dragon($id: ID!) {
+  dragon(id: $id) {
     id
     owner {
       id
@@ -172,6 +172,14 @@
       factor
       chance
     }
+    specialPeacefulSkill {
+      skillClass
+      cost
+      effect
+      usageDate
+    }
+    buffs
+    strength
   }
 }
 ```
