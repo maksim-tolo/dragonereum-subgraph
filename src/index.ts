@@ -12,6 +12,7 @@ export {
   handleBattleEnded,
   handleSkillSet,
   handleSkillUsed,
+  handleSkillBought,
 } from './main';
 export {
   handleDragonOnSale,

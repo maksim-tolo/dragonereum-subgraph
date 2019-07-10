@@ -15,6 +15,7 @@ import {
   BattleEnded as BattleEndedEvent,
   SkillSet as SkillSetEvent,
   SkillUsed as SkillUsedEvent,
+  SkillBought as SkillBoughtEvent,
   LeaderboardRewardsDistributed as LeaderboardRewardsDistributedEvent,
   DistributionUpdated as DistributionUpdatedEvent,
 } from '../generated/Events/Events';
@@ -104,6 +105,43 @@ function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
   });
 }
 
+function updateDragonBuffs(
+  dragonId: BigInt,
+  targetDragonId: BigInt,
+  timestamp: BigInt,
+): void {
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let dragonIdStr = dragonId.toString();
+  let targetDragonIdStr = targetDragonId.toString();
+  let dragon = Dragon.load(dragonIdStr);
+  let specialPeacefulSkill = DragonSpecialPeacefulSkill.load(dragonIdStr);
+
+  if (specialPeacefulSkill != null) {
+    specialPeacefulSkill.usageDate = timestamp;
+    specialPeacefulSkill.save();
+  }
+
+  if (dragon != null) {
+    dragon.buffs = getter.getDragonBuffs(dragonId);
+    dragon.save();
+  }
+
+  updateHealthAndMana(dragonId);
+  updateSpecialBattleSkills(dragonId);
+
+  if (targetDragonIdStr != dragonIdStr) {
+    let targetDragon = Dragon.load(targetDragonIdStr);
+
+    if (targetDragon != null) {
+      targetDragon.buffs = getter.getDragonBuffs(targetDragonId);
+      targetDragon.save();
+    }
+
+    updateHealthAndMana(targetDragonId);
+    updateSpecialBattleSkills(targetDragonId);
+  }
+}
+
 export function handleEggClaimed(event: EggClaimedEvent): void {
   createEgg(event.params.id, event.params.user, event.block.timestamp);
 }
@@ -144,6 +182,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let genome = getter.getDragonGenome(dragonId);
   let skillsValue = getter.getDragonSkills(dragonId);
   let buffs = getter.getDragonBuffs(dragonId);
+  let strength = getter.getDragonStrength(dragonId);
 
   if (egg != null) {
     egg.isHatched = true;
@@ -181,6 +220,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   dragon.coolness = profile.value7;
   dragon.types = types;
   dragon.genome = genome;
+  dragon.strength = strength;
   dragon.owner = userId;
   dragon.tactics = dragonIdStr; // Reference to DragonTactics
   dragon.skills = dragonIdStr; // Reference to DragonSkills
@@ -203,12 +243,14 @@ export function handleDragonUpgraded(event: DragonUpgradedEvent): void {
   let profile = getter.getDragonProfile(id);
   let genome = getter.getDragonGenome(id);
   let skillsValue = getter.getDragonSkills(id);
+  let strength = getter.getDragonStrength(id);
 
   if (dragon != null) {
     dragon.dnaPoints = profile.value5;
     dragon.isBreedingAllowed = profile.value6;
     dragon.coolness = profile.value7;
     dragon.genome = genome;
+    dragon.strength = strength;
     dragon.save();
   }
 
@@ -362,36 +404,17 @@ export function handleSkillSet(event: SkillSetEvent): void {
 }
 
 export function handleSkillUsed(event: SkillUsedEvent): void {
-  let getter = Getter.bind(Address.fromString(getterAddress));
-  let dragonId = event.params.id;
-  let dragonIdStr = dragonId.toString();
-  let targetDragonId = event.params.target;
-  let targetDragonIdStr = targetDragonId.toString();
-  let dragon = Dragon.load(dragonIdStr);
-  let specialPeacefulSkill = DragonSpecialPeacefulSkill.load(dragonIdStr);
+  updateDragonBuffs(
+    event.params.id,
+    event.params.target,
+    event.block.timestamp,
+  );
+}
 
-  if (specialPeacefulSkill != null) {
-    specialPeacefulSkill.usageDate = event.block.timestamp;
-    specialPeacefulSkill.save();
-  }
-
-  if (dragon != null) {
-    dragon.buffs = getter.getDragonBuffs(dragonId);
-    dragon.save();
-  }
-
-  updateHealthAndMana(dragonId);
-  updateSpecialBattleSkills(dragonId);
-
-  if (targetDragonIdStr != dragonIdStr) {
-    let targetDragon = Dragon.load(targetDragonIdStr);
-
-    if (targetDragon != null) {
-      targetDragon.buffs = getter.getDragonBuffs(targetDragonId);
-      targetDragon.save();
-    }
-
-    updateHealthAndMana(targetDragonId);
-    updateSpecialBattleSkills(targetDragonId);
-  }
+export function handleSkillBought(event: SkillBoughtEvent): void {
+  updateDragonBuffs(
+    event.params.id,
+    event.params.target,
+    event.block.timestamp,
+  );
 }

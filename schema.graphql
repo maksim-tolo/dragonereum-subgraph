@@ -33,6 +33,7 @@ type Dragon @entity {
   specialDefense: DragonSpecialDefense!
   specialPeacefulSkill: DragonSpecialPeacefulSkill
   buffs: [BigInt!]!
+  strength: BigInt!
 }
 
 type Egg @entity {
