@@ -87,22 +87,29 @@ function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
   egg.isHatched = false;
   egg.generation = eggDetails.value0;
   egg.coolness = eggDetails.value1;
-  egg.parents = eggDetails.value2.map<string>(id => id.toString());
   egg.momDragonTypes = eggDetails.value3;
   egg.dadDragonTypes = eggDetails.value4;
+
+  if (egg.generation == 0) {
+    egg.parents = [];
+  } else {
+    egg.parents = eggDetails.value2.map<string>(id => id.toString());
+    eggDetails.value2.forEach((dragonId: BigInt) => {
+      if (dragonId.notEqual(BigInt.fromI32(0))) {
+        let getter = Getter.bind(Address.fromString(getterAddress));
+        let dragon = Dragon.load(dragonId.toString());
+        let profile = getter.getDragonProfile(dragonId);
+
+        if (dragon != null) {
+          dragon.dnaPoints = profile.value5;
+          dragon.isBreedingAllowed = profile.value6;
+          dragon.save();
+        }
+      }
+    });
+  }
+
   egg.save();
-
-  eggDetails.value2.forEach((dragonId: BigInt) => {
-    let getter = Getter.bind(Address.fromString(getterAddress));
-    let dragon = Dragon.load(dragonId.toString());
-    let profile = getter.getDragonProfile(dragonId);
-
-    if (dragon != null) {
-      dragon.dnaPoints = profile.value5;
-      dragon.isBreedingAllowed = profile.value6;
-      dragon.save();
-    }
-  });
 }
 
 function updateDragonBuffs(
