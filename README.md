@@ -79,7 +79,7 @@ query Auction($first: Int!, $skip: Int!) {
 ### Get gold selling orders
 ```graphql
 query GoldAuctions($first: Int!, $skip: Int!) {
-  goldAuctions(first: $first, skip: $skip, where: { status: active, type: sell }) {
+  goldAuctions(first: $first, skip: $skip, where: { status: active, type: sell }, orderBy: price, orderDirection: asc) {
     id
     seller {
       id
@@ -93,7 +93,7 @@ query GoldAuctions($first: Int!, $skip: Int!) {
 ### Get gold buying orders
 ```graphql
 query GoldAuctions($first: Int!, $skip: Int!) {
-  goldAuctions(first: $first, skip: $skip, where: { status: active, type: buy }) {
+  goldAuctions(first: $first, skip: $skip, where: { status: active, type: buy }, orderBy: price, orderDirection: desc) {
     id
     seller {
       id
@@ -101,6 +101,28 @@ query GoldAuctions($first: Int!, $skip: Int!) {
     price
     amount
     created
+  }
+}
+```
+### Get gold selling history
+```graphql
+query GoldAuctions($first: Int!, $skip: Int!) {
+  goldAuctions(first: $first, skip: $skip, where: { status: fulfilled, type: sell }, orderBy: ended, orderDirection: desc) {
+    price
+    purchaseAmount
+    ended
+    txHash
+  }
+}
+```
+### Get gold buying history
+```graphql
+query GoldAuctions($first: Int!, $skip: Int!) {
+  goldAuctions(first: $first, skip: $skip, where: { status: fulfilled, type: buy }, orderBy: ended, orderDirection: desc) {
+    price
+    purchaseAmount
+    ended
+    txHash
   }
 }
 ```
@@ -143,6 +165,8 @@ query Dragon($id: ID!) {
     name
     parents {
       id
+      types
+      genome
     }
     dragonsChildren {
       id
@@ -184,6 +208,38 @@ query Dragon($id: ID!) {
     }
     buffs
     strength
+  }
+}
+```
+### Get egg details
+```graphql
+query Egg($id: ID!) {
+  egg(id: $id) {
+    id
+    owner {
+      id
+      name
+    }
+    birthDay
+    isInNest
+    nestPlacementDate
+    isHatched
+    auction {
+      currency
+      startPrice
+      endPrice
+      period
+      created
+    }
+    generation
+    coolness
+    parents {
+      id
+      types
+      genome
+    }
+    momDragonTypes
+    dadDragonTypes
   }
 }
 ```
