@@ -5,6 +5,15 @@ type User @entity {
   eggs: [Egg!] @derivedFrom(field: "owner")
   goldSellOffer: GoldAuction
   goldBuyOffer: GoldAuction
+  battlesStat: UserBattlesStat!
+  battlesWon: [Battle!] @derivedFrom(field: "winnerUser")
+  battlesDefeated: [Battle!] @derivedFrom(field: "looserUser")
+}
+
+type UserBattlesStat @entity {
+  id: ID!
+  wins: Int!
+  defeats: Int!
 }
 
 type Dragon @entity {
@@ -28,12 +37,14 @@ type Dragon @entity {
   eggsChildren: [Egg!] @derivedFrom(field: "parents")
   fromEgg: Egg!
   healthAndMana: DragonHealthAndMana!
-  battlesStat: BattlesStat!
+  battlesStat: DragonBattlesStat!
   specialAttack: DragonSpecialAttack!
   specialDefense: DragonSpecialDefense!
   specialPeacefulSkill: DragonSpecialPeacefulSkill
   buffs: [BigInt!]!
   strength: BigInt!
+  battlesWon: [Battle!] @derivedFrom(field: "winnerDragon")
+  battlesDefeated: [Battle!] @derivedFrom(field: "looserDragon")
 }
 
 type Egg @entity {
@@ -58,7 +69,7 @@ type DragonTactics @entity {
   attack: Int!
 }
 
-type BattlesStat @entity {
+type DragonBattlesStat @entity {
   id: ID!
   wins: Int!
   defeats: Int!
@@ -135,6 +146,32 @@ type GoldAuction @entity {
   purchaseAmount: BigInt
   ended: BigInt
   txHash: String
+}
+
+type Battle @entity {
+  id: ID!
+  seed: String!
+  attackerDragon: Dragon!
+  defenderDragon: Dragon!
+  winnerDragon: Dragon!
+  looserDragon: Dragon!
+  winnerUser: User!
+  looserUser: User!
+  date: BigInt!
+  gladiatorsBattleId: BigInt # TODO: ref to gladiators battle
+}
+
+type DragonBattleSnapshot @entity {
+  id: ID!
+  level: Int!
+  coolness: BigInt!
+  healthAndMana: DragonHealthAndMana!
+  skills: DragonSkills!
+  buffs: [BigInt!]!
+  tactics: DragonTactics!
+  strength: BigInt!
+  specialAttack: DragonSpecialAttack!
+  specialDefense: DragonSpecialDefense!
 }
 
 enum AuctionStatus {

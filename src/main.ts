@@ -28,7 +28,7 @@ import {
   DragonTactics,
   DragonSkills,
   DragonHealthAndMana,
-  BattlesStat,
+  DragonBattlesStat,
   DragonSpecialAttack,
   DragonSpecialDefense,
   DragonSpecialPeacefulSkill,
@@ -73,6 +73,23 @@ function updateSpecialBattleSkills(dragonId: BigInt): void {
   specialDefense.factor = specialDefenseValue.value2;
   specialDefense.chance = specialDefenseValue.value3;
   specialDefense.save();
+}
+
+function updateDragonSkills(dragonId: BigInt): void {
+  let dragonIdStr = dragonId.toString();
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let skills = DragonSkills.load(dragonIdStr) || new DragonSkills(dragonIdStr);
+  let skillsValue = getter.getDragonSkills(dragonId);
+
+  skills.attack = skillsValue.value0;
+  skills.defense = skillsValue.value1;
+  skills.stamina = skillsValue.value2;
+  skills.speed = skillsValue.value3;
+  skills.intelligence = skillsValue.value4;
+  skills.save();
+
+  updateSpecialBattleSkills(dragonId);
+  updateHealthAndMana(dragonId);
 }
 
 function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
@@ -134,7 +151,6 @@ function updateDragonBuffs(
   }
 
   updateHealthAndMana(dragonId);
-  updateSpecialBattleSkills(dragonId);
 
   if (targetDragonIdStr != dragonIdStr) {
     let targetDragon = Dragon.load(targetDragonIdStr);
@@ -145,7 +161,6 @@ function updateDragonBuffs(
     }
 
     updateHealthAndMana(targetDragonId);
-    updateSpecialBattleSkills(targetDragonId);
   }
 }
 
@@ -177,9 +192,8 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let dragon = Dragon.load(dragonIdStr) || new Dragon(dragonIdStr);
   let tactics =
     DragonTactics.load(dragonIdStr) || new DragonTactics(dragonIdStr);
-  let skills = DragonSkills.load(dragonIdStr) || new DragonSkills(dragonIdStr);
   let battlesStat =
-    BattlesStat.load(dragonIdStr) || new BattlesStat(dragonIdStr);
+    DragonBattlesStat.load(dragonIdStr) || new DragonBattlesStat(dragonIdStr);
 
   let egg = Egg.load(eggId);
   let tacticsValue = getter.getDragonTactics(dragonId);
@@ -187,7 +201,6 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let profile = getter.getDragonProfile(dragonId);
   let types = getter.getDragonTypes(dragonId);
   let genome = getter.getDragonGenome(dragonId);
-  let skillsValue = getter.getDragonSkills(dragonId);
   let buffs = getter.getDragonBuffs(dragonId);
   let strength = getter.getDragonStrength(dragonId);
 
@@ -203,15 +216,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   tactics.attack = tacticsValue.value1;
   tactics.save();
 
-  skills.attack = skillsValue.value0;
-  skills.defense = skillsValue.value1;
-  skills.stamina = skillsValue.value2;
-  skills.speed = skillsValue.value3;
-  skills.intelligence = skillsValue.value4;
-  skills.save();
-
-  updateHealthAndMana(dragonId);
-  updateSpecialBattleSkills(dragonId);
+  updateDragonSkills(dragonId);
 
   battlesStat.wins = 0;
   battlesStat.defeats = 0;
@@ -232,7 +237,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   dragon.tactics = dragonIdStr; // Reference to DragonTactics
   dragon.skills = dragonIdStr; // Reference to DragonSkills
   dragon.healthAndMana = dragonIdStr; // Reference to DragonHealthAndMana
-  dragon.battlesStat = dragonIdStr; // Reference to BattlesStat
+  dragon.battlesStat = dragonIdStr; // Reference to DragonBattlesStat
   dragon.specialAttack = dragonIdStr; // Reference to DragonSpecialAttack
   dragon.specialDefense = dragonIdStr; // Reference to DragonSpecialDefense
   dragon.fromEgg = eggId;
@@ -245,11 +250,9 @@ export function handleDragonUpgraded(event: DragonUpgradedEvent): void {
   let id = event.params.id;
   let idStr = id.toString();
   let dragon = Dragon.load(idStr);
-  let skills = DragonSkills.load(idStr);
   let getter = Getter.bind(Address.fromString(getterAddress));
   let profile = getter.getDragonProfile(id);
   let genome = getter.getDragonGenome(id);
-  let skillsValue = getter.getDragonSkills(id);
   let strength = getter.getDragonStrength(id);
 
   if (dragon != null) {
@@ -261,17 +264,7 @@ export function handleDragonUpgraded(event: DragonUpgradedEvent): void {
     dragon.save();
   }
 
-  if (skills != null) {
-    skills.attack = skillsValue.value0;
-    skills.defense = skillsValue.value1;
-    skills.stamina = skillsValue.value2;
-    skills.speed = skillsValue.value3;
-    skills.intelligence = skillsValue.value4;
-    skills.save();
-  }
-
-  updateHealthAndMana(id);
-  updateSpecialBattleSkills(id);
+  updateDragonSkills(id);
 }
 
 export function handleDragonNameSet(event: DragonNameSetEvent): void {
@@ -348,7 +341,7 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
 
   if (winnerDragon != null) {
     let profile = getter.getDragonProfile(winnerId);
-    let battlesStat = BattlesStat.load(winnerIdStr);
+    let battlesStat = DragonBattlesStat.load(winnerIdStr);
     let buffs = getter.getDragonBuffs(winnerId);
 
     winnerDragon.level = profile.value3;
@@ -359,7 +352,6 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
     winnerDragon.save();
 
     updateHealthAndMana(winnerId);
-    updateSpecialBattleSkills(winnerId);
 
     if (battlesStat != null) {
       battlesStat.wins = battlesStat.wins + 1;
@@ -368,14 +360,13 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   }
 
   if (looserDragon != null) {
-    let battlesStat = BattlesStat.load(looserIdStr);
+    let battlesStat = DragonBattlesStat.load(looserIdStr);
     let buffs = getter.getDragonBuffs(looserId);
 
     looserDragon.buffs = buffs;
     looserDragon.save();
 
     updateHealthAndMana(looserId);
-    updateSpecialBattleSkills(looserId);
 
     if (battlesStat != null) {
       battlesStat.defeats = battlesStat.defeats + 1;
