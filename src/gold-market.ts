@@ -15,6 +15,7 @@ import {
   FulfilledAuctionStatus,
   SellGoldOrderType,
 } from './constants';
+import { initUser } from './helper';
 
 function getAuctionId(user: User | null, orderType: string): string | null {
   if (user == null) {
@@ -48,7 +49,7 @@ function createGoldAuction(
   amount: BigInt,
   timestamp: BigInt,
 ): void {
-  let user = User.load(userId) || new User(userId);
+  let user = initUser(userId);
   let goldAuction = new GoldAuction(auctionId);
 
   goldAuction.type = orderType;

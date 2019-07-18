@@ -24,7 +24,6 @@ import { Transfer as EggTransferEvent } from '../generated/EggStorage/EggStorage
 import {
   Dragon,
   Egg,
-  User,
   DragonTactics,
   DragonSkills,
   DragonHealthAndMana,
@@ -32,9 +31,11 @@ import {
   DragonSpecialAttack,
   DragonSpecialDefense,
   DragonSpecialPeacefulSkill,
+  UserBattlesStat,
 } from '../generated/schema';
 import { Getter } from '../generated/Events/Getter';
 import { getterAddress, nullAddress } from './constants';
+import { initUser } from './helper';
 
 function updateHealthAndMana(dragonId: BigInt): void {
   let dragonIdStr = dragonId.toString();
@@ -290,7 +291,7 @@ export function handleDragonTacticsSet(event: DragonTacticsSetEvent): void {
 
 export function handleUserNameSet(event: UserNameSetEvent): void {
   let id = event.params.user.toHex();
-  let user = User.load(id) || new User(id);
+  let user = initUser(id);
 
   user.name = event.params.name.toString();
   user.save();
@@ -302,9 +303,8 @@ export function handleDragonTransfer(event: DragonTransferEvent): void {
   let dragon = Dragon.load(id) || new Dragon(id);
 
   if (to != nullAddress) {
-    let user = User.load(to) || new User(to);
+    initUser(id);
 
-    user.save();
     dragon.owner = to;
   } else {
     dragon.owner = null;
@@ -319,9 +319,8 @@ export function handleEggTransfer(event: EggTransferEvent): void {
   let egg = Egg.load(id) || new Egg(id);
 
   if (to != nullAddress) {
-    let user = User.load(to) || new User(to);
+    initUser(id);
 
-    user.save();
     egg.owner = to;
   } else {
     egg.owner = null;
@@ -357,6 +356,15 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
       battlesStat.wins = battlesStat.wins + 1;
       battlesStat.save();
     }
+
+    if (winnerDragon.owner != null) {
+      let winnerUserStat = UserBattlesStat.load(winnerDragon.owner);
+
+      if (winnerUserStat != null) {
+        winnerUserStat.wins = winnerUserStat.wins + 1;
+        winnerUserStat.save();
+      }
+    }
   }
 
   if (looserDragon != null) {
@@ -371,6 +379,15 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
     if (battlesStat != null) {
       battlesStat.defeats = battlesStat.defeats + 1;
       battlesStat.save();
+    }
+
+    if (looserDragon.owner != null) {
+      let looserUserStat = UserBattlesStat.load(looserDragon.owner);
+
+      if (looserUserStat != null) {
+        looserUserStat.defeats = looserUserStat.defeats + 1;
+        looserUserStat.save();
+      }
     }
   }
 }
