@@ -1,7 +1,7 @@
 /**
  * TODO: Add DistributionUpdated event
  */
-import { Address, BigInt } from '@graphprotocol/graph-ts';
+import { Address, BigInt, EthereumTransaction } from '@graphprotocol/graph-ts';
 
 import {
   EggClaimed as EggClaimedEvent,
@@ -35,7 +35,7 @@ import {
 } from '../generated/schema';
 import { Getter } from '../generated/Events/Getter';
 import { getterAddress, nullAddress } from './constants';
-import { initUser } from './helper';
+import { initUser, updateEtherSpentOnToken } from './helper';
 
 function updateHealthAndMana(dragonId: BigInt): void {
   let dragonIdStr = dragonId.toString();
@@ -134,6 +134,7 @@ function updateDragonBuffs(
   dragonId: BigInt,
   targetDragonId: BigInt,
   timestamp: BigInt,
+  tx: EthereumTransaction,
 ): void {
   let getter = Getter.bind(Address.fromString(getterAddress));
   let dragonIdStr = dragonId.toString();
@@ -157,6 +158,8 @@ function updateDragonBuffs(
     let targetDragon = Dragon.load(targetDragonIdStr);
 
     if (targetDragon != null) {
+      updateEtherSpentOnToken<Dragon>(targetDragon, tx);
+
       targetDragon.buffs = getter.getDragonBuffs(targetDragonId);
       targetDragon.save();
     }
@@ -178,6 +181,8 @@ export function handleEggSentToNest(event: EggSentToNestEvent): void {
   let egg = Egg.load(id);
 
   if (egg != null) {
+    updateEtherSpentOnToken<Egg>(egg, event.transaction);
+
     egg.isInNest = true;
     egg.nestPlacementDate = event.block.timestamp;
     egg.save();
@@ -206,6 +211,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   let strength = getter.getDragonStrength(dragonId);
 
   if (egg != null) {
+    dragon.etherSpent = egg.etherSpent; // Transfer ether spent on egg to dragon
     egg.isHatched = true;
     egg.isInNest = false;
     egg.hatchedDragon = dragonIdStr;
@@ -257,6 +263,8 @@ export function handleDragonUpgraded(event: DragonUpgradedEvent): void {
   let strength = getter.getDragonStrength(id);
 
   if (dragon != null) {
+    updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+
     dragon.dnaPoints = profile.value5;
     dragon.isBreedingAllowed = profile.value6;
     dragon.coolness = profile.value7;
@@ -273,6 +281,8 @@ export function handleDragonNameSet(event: DragonNameSetEvent): void {
   let dragon = Dragon.load(id);
 
   if (dragon != null) {
+    updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+
     dragon.name = event.params.name.toString();
     dragon.save();
   }
@@ -281,11 +291,17 @@ export function handleDragonNameSet(event: DragonNameSetEvent): void {
 export function handleDragonTacticsSet(event: DragonTacticsSetEvent): void {
   let id = event.params.id.toString();
   let tactics = DragonTactics.load(id);
+  let dragon = Dragon.load(id);
 
   if (tactics != null) {
     tactics.melee = event.params.melee;
     tactics.attack = event.params.attack;
     tactics.save();
+  }
+
+  if (dragon != null) {
+    updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+    dragon.save();
   }
 }
 
@@ -310,6 +326,8 @@ export function handleDragonTransfer(event: DragonTransferEvent): void {
     dragon.owner = null;
   }
 
+  updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+
   dragon.save();
 }
 
@@ -326,6 +344,8 @@ export function handleEggTransfer(event: EggTransferEvent): void {
     egg.owner = null;
   }
 
+  updateEtherSpentOnToken<Egg>(egg, event.transaction);
+
   egg.save();
 }
 
@@ -337,11 +357,16 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   let looserId = event.params.looserId;
   let looserIdStr = looserId.toString();
   let looserDragon = Dragon.load(looserIdStr);
+  let attackerId = event.params.attackerId;
 
   if (winnerDragon != null) {
     let profile = getter.getDragonProfile(winnerId);
     let battlesStat = DragonBattlesStat.load(winnerIdStr);
     let buffs = getter.getDragonBuffs(winnerId);
+
+    if (winnerId.equals(attackerId)) {
+      updateEtherSpentOnToken<Dragon>(winnerDragon, event.transaction);
+    }
 
     winnerDragon.level = profile.value3;
     winnerDragon.experience = profile.value4;
@@ -370,6 +395,10 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   if (looserDragon != null) {
     let battlesStat = DragonBattlesStat.load(looserIdStr);
     let buffs = getter.getDragonBuffs(looserId);
+
+    if (looserId.equals(attackerId)) {
+      updateEtherSpentOnToken<Dragon>(looserDragon, event.transaction);
+    }
 
     looserDragon.buffs = buffs;
     looserDragon.save();
@@ -412,6 +441,8 @@ export function handleSkillSet(event: SkillSetEvent): void {
       specialPeacefulSkill.effect = peacefulSkill.value2;
       specialPeacefulSkill.save();
 
+      updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+
       dragon.specialPeacefulSkill = dragonIdStr; // Reference to DragonSpecialPeacefulSkill
       dragon.save();
     }
@@ -423,6 +454,7 @@ export function handleSkillUsed(event: SkillUsedEvent): void {
     event.params.id,
     event.params.target,
     event.block.timestamp,
+    event.transaction,
   );
 }
 
@@ -431,5 +463,6 @@ export function handleSkillBought(event: SkillBoughtEvent): void {
     event.params.id,
     event.params.target,
     event.block.timestamp,
+    event.transaction,
   );
 }

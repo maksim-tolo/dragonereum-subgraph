@@ -28,6 +28,7 @@ import {
   getterAddress,
   GoldCurrency,
 } from './constants';
+import { ERC721Token, updateEtherSpentOnToken } from './helper';
 
 let dynamicPricesAuctionsIds: string[] = [];
 
@@ -39,14 +40,6 @@ interface AuctionInfo {
   value4: i32; // period
   value5: BigInt; // created
   value6: boolean; // isGold
-}
-
-// Egg or Dragon
-interface ERC721Token {
-  id: string;
-  owner: string | null;
-  auction: string | null;
-  save: Function;
 }
 
 function addAuctionToDynamicPricesRegistry(auctionId: string): void {
@@ -183,6 +176,8 @@ export function handleEggOnSale(event: EggOnSaleEvent): void {
   let getter = Getter.bind(Address.fromString(getterAddress));
   let auctionInfo = getter.getEggOnSaleInfo(event.params.id);
 
+  updateEtherSpentOnToken<Egg>(egg, event.transaction);
+
   createAuction<Egg, EggSaleInfo>(
     egg,
     auctionInfo,
@@ -205,6 +200,8 @@ export function handleDragonOnSale(event: DragonOnSaleEvent): void {
     event.transaction.hash.toHex() + '-' + event.logIndex.toString();
   let getter = Getter.bind(Address.fromString(getterAddress));
   let auctionInfo = getter.getDragonOnSaleInfo(event.params.id);
+
+  updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
 
   createAuction<Dragon, DragonSaleInfo>(
     dragon,
@@ -229,6 +226,8 @@ export function handleDragonOnBreeding(event: DragonOnBreedingEvent): void {
   let getter = Getter.bind(Address.fromString(getterAddress));
   let auctionInfo = getter.getBreedingOnSaleInfo(event.params.id);
 
+  updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+
   createAuction<Dragon, DragonBreedingSaleInfo>(
     dragon,
     auctionInfo,
@@ -248,6 +247,8 @@ export function handleEggRemovedFromSale(event: EggRemovedFromSaleEvent): void {
   let id = event.params.id.toString();
   let egg = Egg.load(id);
 
+  updateEtherSpentOnToken<Egg>(egg, event.transaction);
+
   cancelAuction<Egg>(egg, event.block.timestamp);
 }
 
@@ -256,6 +257,8 @@ export function handleDragonRemovedFromSale(
 ): void {
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
+
+  updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
 
   cancelAuction<Dragon>(dragon, event.block.timestamp);
 }
@@ -266,9 +269,13 @@ export function handleDragonRemovedFromBreeding(
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
 
+  updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+
   cancelAuction<Dragon>(dragon, event.block.timestamp);
 }
 
+// Don't need to call updateEtherSpentOnToken because
+// it will be called by 'transfer' handler on the same tx
 export function handleEggBought(event: EggBoughtEvent): void {
   let id = event.params.id.toString();
   let egg = Egg.load(id);
