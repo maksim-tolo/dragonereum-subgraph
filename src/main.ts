@@ -319,7 +319,7 @@ export function handleDragonTransfer(event: DragonTransferEvent): void {
   let dragon = Dragon.load(id) || new Dragon(id);
 
   if (to != nullAddress) {
-    initUser(id);
+    initUser(to);
 
     dragon.owner = to;
   } else {
@@ -337,7 +337,7 @@ export function handleEggTransfer(event: EggTransferEvent): void {
   let egg = Egg.load(id) || new Egg(id);
 
   if (to != nullAddress) {
-    initUser(id);
+    initUser(to);
 
     egg.owner = to;
   } else {
