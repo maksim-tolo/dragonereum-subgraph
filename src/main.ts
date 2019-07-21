@@ -321,12 +321,23 @@ export function handleDragonTransfer(event: DragonTransferEvent): void {
   if (to != nullAddress) {
     initUser(to);
 
-    dragon.owner = to;
+    if (dragon.owner == null) {
+      // Dragon was born
+      dragon.owner = to;
+    } else if (dragon.owner == event.transaction.from.toHex()) {
+      // Regular transfer
+      updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+
+      dragon.owner = to;
+    } else {
+      // Dragon was bought
+      dragon.owner = to;
+
+      updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+    }
   } else {
     dragon.owner = null;
   }
-
-  updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
 
   dragon.save();
 }
@@ -339,12 +350,26 @@ export function handleEggTransfer(event: EggTransferEvent): void {
   if (to != nullAddress) {
     initUser(to);
 
-    egg.owner = to;
+    if (egg.owner == null) {
+      // Egg was born
+      egg.owner = to;
+
+      updateEtherSpentOnToken<Egg>(egg, event.transaction);
+    } else if (egg.owner == event.transaction.from.toHex()) {
+      // Regular transfer
+      updateEtherSpentOnToken<Egg>(egg, event.transaction);
+
+      egg.owner = to;
+    } else {
+      // Egg was bought
+      egg.owner = to;
+
+      updateEtherSpentOnToken<Egg>(egg, event.transaction);
+    }
   } else {
+    // Egg was hatched
     egg.owner = null;
   }
-
-  updateEtherSpentOnToken<Egg>(egg, event.transaction);
 
   egg.save();
 }

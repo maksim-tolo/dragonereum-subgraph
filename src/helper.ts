@@ -36,7 +36,7 @@ export function updateEtherSpentOnToken<T extends ERC721Token>(
   token: T | null,
   tx: EthereumTransaction,
 ): void {
-  if (token != null && token.owner == tx.from.toHex()) {
+  if (token != null && token.owner != null && token.owner == tx.from.toHex()) {
     if (token.etherSpent == null) {
       token.etherSpent = getTxCost(tx);
     } else {
