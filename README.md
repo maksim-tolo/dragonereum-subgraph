@@ -1,7 +1,25 @@
 ## Dapp
 Subgraph integration is currently in progress.
 The latest updates are available by the following url https://dragonereum-alpha-test.web.app/.
-Subgraph has been added only to the gold marketplace at the moment.
+
+### Integration Progress
+ - [x] `GOLD marketplace` page
+ - [x] `Leaderboard` page
+ - [ ] `My Dragons` page
+ - [ ] `My Eggs` page
+ - [ ] `Dragon Details` page
+ - [ ] `Egg Details` page
+ - [ ] `Dragons for sale` page
+ - [ ] `Eggs for sale` page
+ - [ ] `Dragons for breeding` page
+ - [ ] `Services` page
+ - [ ] `Start battle` page
+ - [ ] `Conducted battles` page
+ - [ ] `Battle details` page
+ - [ ] `Conducted gladiators battles` page
+ - [ ] `Gladiator battle details` page
+ - [ ] `Notifications`
+
 ## Queries
 ### Get eggs for sale
 ```graphql
@@ -240,6 +258,32 @@ query Egg($id: ID!) {
     }
     momDragonTypes
     dadDragonTypes
+  }
+}
+```
+### Get dragons sorted by coolness
+```graphql
+query Dragons($first: Int!, $skip: Int!) {
+  dragons(first: $first, skip: $skip, orderBy: coolness, orderDirection: desc) {
+    id
+    types
+    genome
+    birthDay
+    generation
+    coolness
+    level
+    auction {
+      currency
+      startPrice
+      endPrice
+      period
+      created
+      type
+    }
+    name
+    owner {
+      id
+    }
   }
 }
 ```
