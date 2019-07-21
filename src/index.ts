@@ -9,9 +9,6 @@ export {
   handleUserNameSet,
   handleEggTransfer,
   handleDragonTransfer,
-  handleSkillSet,
-  handleSkillUsed,
-  handleSkillBought,
 } from './main';
 export {
   handleDragonOnSale,
@@ -34,3 +31,4 @@ export {
   handleGoldBought,
 } from './gold-market';
 export { handleBattleEnded } from './battles';
+export { handleSkillSet, handleSkillUsed, handleSkillBought } from './skills';

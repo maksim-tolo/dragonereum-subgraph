@@ -54,17 +54,20 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - User
+        - UserBattlesStat
         - Dragon
         - Egg
         - DragonTactics
+        - DragonBattlesStat
         - DragonSkills
-        - Auction
-        - GoldAuction
-        - BattlesStat
         - DragonSpecialAttack
         - DragonSpecialDefense
-        - DragonHealthAndMana
         - DragonSpecialPeacefulSkill
+        - DragonHealthAndMana
+        - Auction
+        - GoldAuction
+        - Battle
+        - DragonBattleSnapshot
       abis:
         - name: Events
           file: ./abis/Events.json
