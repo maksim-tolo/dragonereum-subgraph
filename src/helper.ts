@@ -1,5 +1,15 @@
-import { User, UserBattlesStat } from '../generated/schema';
-import { BigInt, EthereumTransaction } from '@graphprotocol/graph-ts/index';
+import { Address, BigInt, EthereumTransaction } from '@graphprotocol/graph-ts';
+import {
+  DragonHealthAndMana,
+  DragonSkills,
+  DragonSpecialAttack,
+  DragonSpecialDefense,
+  DragonTactics,
+  User,
+  UserBattlesStat,
+} from '../generated/schema';
+import { Getter } from '../generated/Events/Getter';
+import { getterAddress } from './constants';
 
 // Egg or Dragon
 export interface ERC721Token {
@@ -43,4 +53,84 @@ export function updateEtherSpentOnToken<T extends ERC721Token>(
       token.etherSpent = token.etherSpent.plus(getTxCost(tx));
     }
   }
+}
+
+export function updateTactics(
+  dragonId: BigInt,
+  tacticsId: string | null = null,
+): void {
+  let tacticsIdStr = tacticsId || dragonId.toString();
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let tactics =
+    DragonTactics.load(tacticsIdStr) || new DragonTactics(tacticsIdStr);
+  let tacticsValue = getter.getDragonTactics(dragonId);
+
+  tactics.melee = tacticsValue.value0;
+  tactics.attack = tacticsValue.value1;
+  tactics.save();
+}
+
+export function updateHealthAndMana(
+  dragonId: BigInt,
+  healthAndManaId: string | null = null,
+): void {
+  let healthAndManaIdStr = healthAndManaId || dragonId.toString();
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let healthAndMana =
+    DragonHealthAndMana.load(healthAndManaIdStr) ||
+    new DragonHealthAndMana(healthAndManaIdStr);
+  let healthAndManaValues = getter.getDragonHealthAndMana(dragonId);
+
+  healthAndMana.timestamp = healthAndManaValues.value0;
+  healthAndMana.maxHealth = healthAndManaValues.value3;
+  healthAndMana.maxMana = healthAndManaValues.value4;
+  healthAndMana.save();
+}
+
+export function updateSpecialBattleSkills(
+  dragonId: BigInt,
+  skillsId: string | null = null,
+): void {
+  let skillsIdStr = skillsId || dragonId.toString();
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let specialAttack =
+    DragonSpecialAttack.load(skillsIdStr) ||
+    new DragonSpecialAttack(skillsIdStr);
+  let specialDefense =
+    DragonSpecialDefense.load(skillsIdStr) ||
+    new DragonSpecialDefense(skillsIdStr);
+  let specialAttackValue = getter.getDragonSpecialAttack(dragonId);
+  let specialDefenseValue = getter.getDragonSpecialDefense(dragonId);
+
+  specialAttack.dragonType = specialAttackValue.value0;
+  specialAttack.cost = specialAttackValue.value1;
+  specialAttack.factor = specialAttackValue.value2;
+  specialAttack.chance = specialAttackValue.value3;
+  specialAttack.save();
+
+  specialDefense.dragonType = specialDefenseValue.value0;
+  specialDefense.cost = specialDefenseValue.value1;
+  specialDefense.factor = specialDefenseValue.value2;
+  specialDefense.chance = specialDefenseValue.value3;
+  specialDefense.save();
+}
+
+export function updateDragonSkills(
+  dragonId: BigInt,
+  skillsId: string | null = null,
+): void {
+  let skillsIdStr = skillsId || dragonId.toString();
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let skills = DragonSkills.load(skillsIdStr) || new DragonSkills(skillsIdStr);
+  let skillsValue = getter.getDragonSkills(dragonId);
+
+  skills.attack = skillsValue.value0;
+  skills.defense = skillsValue.value1;
+  skills.stamina = skillsValue.value2;
+  skills.speed = skillsValue.value3;
+  skills.intelligence = skillsValue.value4;
+  skills.save();
+
+  updateSpecialBattleSkills(dragonId);
+  updateHealthAndMana(dragonId);
 }

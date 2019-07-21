@@ -9,7 +9,6 @@ export {
   handleUserNameSet,
   handleEggTransfer,
   handleDragonTransfer,
-  handleBattleEnded,
   handleSkillSet,
   handleSkillUsed,
   handleSkillBought,
@@ -34,3 +33,4 @@ export {
   handleGoldBuyOrderCancelled,
   handleGoldBought,
 } from './gold-market';
+export { handleBattleEnded } from './battles';
