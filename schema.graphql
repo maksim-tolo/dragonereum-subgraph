@@ -41,7 +41,7 @@ type Dragon @entity {
   specialAttack: DragonSpecialAttack!
   specialDefense: DragonSpecialDefense!
   specialPeacefulSkill: DragonSpecialPeacefulSkill
-  buffs: [BigInt!]!
+  buffs: [BigInt!]! # TODO: Make it an object
   strength: BigInt!
   battlesWon: [Battle!] @derivedFrom(field: "winnerDragon")
   battlesDefeated: [Battle!] @derivedFrom(field: "looserDragon")
@@ -115,6 +115,8 @@ type DragonHealthAndMana @entity {
   timestamp: BigInt!
   maxHealth: BigInt!
   maxMana: BigInt!
+  remainingHealth: BigInt!
+  remainingMana: BigInt!
 }
 
 type Auction @entity {

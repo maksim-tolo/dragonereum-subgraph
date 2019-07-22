@@ -198,6 +198,8 @@ query Dragon($id: ID!) {
       dadDragonTypes
     }
     healthAndMana {
+      remainingHealth
+      remainingMana
       maxHealth
       maxMana
       timestamp

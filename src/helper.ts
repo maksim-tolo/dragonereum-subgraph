@@ -82,6 +82,8 @@ export function updateHealthAndMana(
   let healthAndManaValues = getter.getDragonHealthAndMana(dragonId);
 
   healthAndMana.timestamp = healthAndManaValues.value0;
+  healthAndMana.remainingHealth = healthAndManaValues.value1;
+  healthAndMana.remainingMana = healthAndManaValues.value2;
   healthAndMana.maxHealth = healthAndManaValues.value3;
   healthAndMana.maxMana = healthAndManaValues.value4;
   healthAndMana.save();
