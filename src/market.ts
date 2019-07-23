@@ -56,10 +56,10 @@ function removeAuctionFromDynamicPricesRegistry(auctionId: string): void {
 function getDragonTypes(types: i32[]): string[] {
   let result: string[] = [];
   let length: i32 = types.length;
-  let dragonTypes = ['water', 'fire', 'air', 'earth', 'magic'];
+  let dragonTypes: string[] = ['water', 'fire', 'air', 'earth', 'magic'];
 
   for (let i: i32 = 0; i < length; i++) {
-    if (types[i] != 0 && !!dragonTypes[i]) {
+    if (types[i] != 0 && dragonTypes[i] != null) {
       result.push(dragonTypes[i]);
     }
   }
