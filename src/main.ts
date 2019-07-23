@@ -32,6 +32,17 @@ import {
   updateTactics,
 } from './helper';
 
+function getEggTypes(momTypes: i32[], dadTypes: i32[]): i32[] {
+  let types: i32[] = [];
+  let minLength = Math.min(momTypes.length, dadTypes.length);
+
+  for (let i: i32 = 0; i < minLength; i++) {
+    types.push((momTypes[i] + dadTypes[i]) / 2);
+  }
+
+  return types;
+}
+
 function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
   let eggId = id.toString();
   let egg = Egg.load(eggId) || new Egg(eggId);
@@ -46,6 +57,7 @@ function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
   egg.coolness = eggDetails.value1;
   egg.momDragonTypes = eggDetails.value3;
   egg.dadDragonTypes = eggDetails.value4;
+  egg.types = getEggTypes(egg.momDragonTypes, egg.dadDragonTypes); // TODO: Remove when auction.dragonTypes is removed
 
   if (egg.generation == 0) {
     egg.parents = [];

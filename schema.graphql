@@ -62,6 +62,7 @@ type Egg @entity {
   parents: [Dragon!]!
   momDragonTypes: [Int!]!
   dadDragonTypes: [Int!]!
+  types: [Int!]!
   etherSpent: BigInt
 }
 
@@ -123,6 +124,7 @@ type Auction @entity {
   id: ID!
   dragon: Dragon
   egg: Egg
+  dragonTypes: [DragonType!]! # TODO: Remove when nested filters are implemented
   type: AuctionType!
   currency: Currency!
   status: AuctionStatus!
@@ -178,6 +180,14 @@ type DragonBattleSnapshot @entity {
   strength: BigInt!
   specialAttack: DragonSpecialAttack!
   specialDefense: DragonSpecialDefense!
+}
+
+enum DragonType {
+  water
+  fire
+  air
+  earth
+  magic
 }
 
 enum AuctionStatus {

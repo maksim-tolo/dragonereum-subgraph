@@ -17,6 +17,7 @@ export interface ERC721Token {
   owner: string | null;
   auction: string | null;
   etherSpent: BigInt | null;
+  types: i32[];
   save: Function;
 }
 
