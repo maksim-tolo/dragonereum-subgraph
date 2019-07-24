@@ -7,7 +7,7 @@ The latest updates are available by the following url https://dragonereum-alpha-
  - [x] `Leaderboard` page
  - [ ] `My Dragons` page
  - [ ] `My Eggs` page
- - [ ] `Dragon Details` page
+ - [x] `Dragon Details` page
  - [ ] `Egg Details` page
  - [ ] `Dragons for sale` page
  - [ ] `Eggs for sale` page
@@ -179,6 +179,7 @@ query Dragon($id: ID!) {
       endPrice
       period
       created
+      type
     }
     name
     parents {
