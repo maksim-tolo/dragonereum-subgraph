@@ -8,7 +8,7 @@ The latest updates are available by the following url https://dragonereum-alpha-
  - [ ] `My Dragons` page
  - [ ] `My Eggs` page
  - [x] `Dragon Details` page
- - [ ] `Egg Details` page
+ - [x] `Egg Details` page
  - [ ] `Dragons for sale` page
  - [ ] `Eggs for sale` page
  - [ ] `Dragons for breeding` page
@@ -251,6 +251,7 @@ query Egg($id: ID!) {
       endPrice
       period
       created
+      type
     }
     generation
     coolness
@@ -261,6 +262,9 @@ query Egg($id: ID!) {
     }
     momDragonTypes
     dadDragonTypes
+  }
+  eggs(where: { isInNest: true }, orderBy: nestPlacementDate, orderDirection: asc) {
+    id
   }
 }
 ```
