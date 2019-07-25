@@ -95,3 +95,27 @@ export function handleSkillBought(event: SkillBoughtEvent): void {
     event.transaction,
   );
 }
+
+export function handleSkillOnSaleEvent(event: SkillOnSaleEvent): void {
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let id = event.params.id;
+  let specialPeacefulSkill = DragonSpecialPeacefulSkill.load(id.toString());
+  let saleInfo = getter.getSkillOnSaleInfo(id);
+
+  if (specialPeacefulSkill != null) {
+    specialPeacefulSkill.price = saleInfo.value1;
+    specialPeacefulSkill.save();
+  }
+}
+
+export function handleSkillRemovedFromSaleEvent(
+  event: SkillRemovedFromSaleEvent,
+): void {
+  let id = event.params.id.toString();
+  let specialPeacefulSkill = DragonSpecialPeacefulSkill.load(id);
+
+  if (specialPeacefulSkill != null) {
+    specialPeacefulSkill.price = null;
+    specialPeacefulSkill.save();
+  }
+}

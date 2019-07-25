@@ -31,4 +31,10 @@ export {
   handleGoldBought,
 } from './gold-market';
 export { handleBattleEnded } from './battles';
-export { handleSkillSet, handleSkillUsed, handleSkillBought } from './skills';
+export {
+  handleSkillSet,
+  handleSkillUsed,
+  handleSkillBought,
+  handleSkillOnSaleEvent,
+  handleSkillRemovedFromSaleEvent,
+} from './skills';

@@ -130,4 +130,8 @@ dataSources:
           handler: handleSkillUsed
         - event: SkillBought(indexed address,indexed address,uint256,indexed uint256,uint256)
           handler: handleSkillBought
+        - event: SkillOnSale(indexed address,indexed uint256)
+          handler: handleSkillOnSaleEvent
+        - event: SkillRemovedFromSale(indexed address,indexed uint256)
+          handler: handleSkillRemovedFromSaleEvent
       file: ./src/index.ts

@@ -110,7 +110,7 @@ type DragonSpecialPeacefulSkill @entity {
   cost: BigInt!
   effect: BigInt!
   usageDate: BigInt
-  price: BigInt
+  price: BigInt # TODO: Add purchasing history
 }
 
 type DragonHealthAndMana @entity {
