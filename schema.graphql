@@ -105,10 +105,12 @@ type DragonSpecialDefense @entity {
 
 type DragonSpecialPeacefulSkill @entity {
   id: ID!
+  dragon: Dragon!
   skillClass: Int!
   cost: BigInt!
   effect: BigInt!
   usageDate: BigInt
+  price: BigInt
 }
 
 type DragonHealthAndMana @entity {

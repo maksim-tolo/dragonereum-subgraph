@@ -64,6 +64,7 @@ export function handleSkillSet(event: SkillSetEvent): void {
         DragonSpecialPeacefulSkill.load(dragonIdStr) ||
         new DragonSpecialPeacefulSkill(dragonIdStr);
 
+      specialPeacefulSkill.dragon = dragonIdStr;
       specialPeacefulSkill.skillClass = skillClass;
       specialPeacefulSkill.cost = peacefulSkill.value1;
       specialPeacefulSkill.effect = peacefulSkill.value2;
