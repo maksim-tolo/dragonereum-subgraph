@@ -17,7 +17,9 @@ export interface ERC721Token {
   owner: string | null;
   auction: string | null;
   etherSpent: BigInt | null;
-  types: i32[];
+  generation: i32;
+  coolness: BigInt;
+  parsedTypes: string[];
   save: Function;
 }
 
@@ -136,4 +138,19 @@ export function updateDragonSkills(
 
   updateSpecialBattleSkills(dragonId);
   updateHealthAndMana(dragonId);
+}
+
+// TODO: Remove
+export function parseDragonTypes(types: i32[]): string[] {
+  let result: string[] = [];
+  let length: i32 = types.length;
+  let dragonTypes: string[] = ['water', 'fire', 'air', 'earth', 'magic'];
+
+  for (let i: i32 = 0; i < length; i++) {
+    if (types[i] != 0 && dragonTypes[i] != null) {
+      result.push(dragonTypes[i]);
+    }
+  }
+
+  return result;
 }

@@ -52,21 +52,6 @@ function removeAuctionFromDynamicPricesRegistry(auctionId: string): void {
   );
 }
 
-// TODO: Remove
-function getDragonTypes(types: i32[]): string[] {
-  let result: string[] = [];
-  let length: i32 = types.length;
-  let dragonTypes: string[] = ['water', 'fire', 'air', 'earth', 'magic'];
-
-  for (let i: i32 = 0; i < length; i++) {
-    if (types[i] != 0 && dragonTypes[i] != null) {
-      result.push(dragonTypes[i]);
-    }
-  }
-
-  return result;
-}
-
 function updateCurrentPrice(auctionId: string, timestamp: BigInt): boolean {
   let auction = Auction.load(auctionId);
 
@@ -122,7 +107,12 @@ function createAuction<T extends ERC721Token, K extends AuctionInfo>(
     auction.seller = token.owner;
     auction.period = auctionInfo.value4;
     auction.created = auctionInfo.value5;
-    auction.dragonTypes = getDragonTypes(token.types);
+    auction.dragonTypes = token.parsedTypes;
+
+    // TODO: Remove
+    auction.tokenGeneration = token.generation;
+    auction.tokenCoolness = token.coolness;
+
     auction.save();
 
     if (auction.startPrice != auction.endPrice) {

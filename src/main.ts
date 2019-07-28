@@ -22,6 +22,7 @@ import {
   Egg,
   DragonTactics,
   DragonBattlesStat,
+  Auction,
 } from '../generated/schema';
 import { Getter } from '../generated/Events/Getter';
 import { getterAddress, nullAddress } from './constants';
@@ -30,6 +31,7 @@ import {
   updateDragonSkills,
   updateEtherSpentOnToken,
   updateTactics,
+  parseDragonTypes,
 } from './helper';
 
 function getEggTypes(momTypes: i32[], dadTypes: i32[]): i32[] {
@@ -58,6 +60,7 @@ function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
   egg.momDragonTypes = eggDetails.value3;
   egg.dadDragonTypes = eggDetails.value4;
   egg.types = getEggTypes(egg.momDragonTypes, egg.dadDragonTypes); // TODO: Remove when auction.dragonTypes is removed
+  egg.parsedTypes = parseDragonTypes(egg.types); // TODO: Remove
 
   if (egg.generation == 0) {
     egg.parents = [];
@@ -144,6 +147,7 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   dragon.isBreedingAllowed = profile.value6;
   dragon.coolness = profile.value7;
   dragon.types = types;
+  dragon.parsedTypes = parseDragonTypes(dragon.types); // TODO: Remove
   dragon.genome = genome;
   dragon.strength = strength;
   dragon.owner = userId;
@@ -177,6 +181,17 @@ export function handleDragonUpgraded(event: DragonUpgradedEvent): void {
     dragon.genome = genome;
     dragon.strength = strength;
     dragon.save();
+
+    // TODO: Remove
+    if (dragon.auction != null) {
+      let auction = Auction.load(dragon.auction);
+
+      if (auction != null) {
+        auction.tokenCoolness = dragon.coolness;
+
+        auction.save();
+      }
+    }
   }
 
   updateDragonSkills(id);

@@ -23,7 +23,7 @@ The latest updates are available by the following url https://dragonereum-alpha-
 ## Queries
 ### Get eggs for sale
 ```graphql
-query Auction($first: Int!, $skip: Int!) {
+query Auctions($first: Int!, $skip: Int!) {
   auctions(first: $first, skip: $skip, where: { status: active, type: eggSale }) {
     currency
     startPrice
@@ -42,7 +42,7 @@ query Auction($first: Int!, $skip: Int!) {
 ```
 ### Get dragons for sale
 ```graphql
-query Auction($first: Int!, $skip: Int!) {
+query Auctions($first: Int!, $skip: Int!) {
   auctions(first: $first, skip: $skip, where: { status: active, type: dragonSale }) {
     currency
     startPrice

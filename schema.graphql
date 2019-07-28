@@ -20,6 +20,7 @@ type Dragon @entity {
   id: ID!
   owner: User
   types: [Int!]!
+  parsedTypes: [DragonType!]! # TODO: Remove
   genome: [Int!]!
   skills: DragonSkills!
   birthDay: BigInt!
@@ -63,6 +64,7 @@ type Egg @entity {
   momDragonTypes: [Int!]!
   dadDragonTypes: [Int!]!
   types: [Int!]!
+  parsedTypes: [DragonType!]! # TODO: Remove
   etherSpent: BigInt
 }
 
@@ -127,6 +129,8 @@ type Auction @entity {
   dragon: Dragon
   egg: Egg
   dragonTypes: [DragonType!]! # TODO: Remove when nested filters are implemented
+  tokenGeneration: Int! # TODO: Remove
+  tokenCoolness: BigInt! # TODO: Remove
   type: AuctionType!
   currency: Currency!
   status: AuctionStatus!
