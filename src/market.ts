@@ -177,10 +177,16 @@ function cancelAuction<T extends ERC721Token>(
 export function handleEggOnSale(event: EggOnSaleEvent): void {
   let id = event.params.id.toString();
   let egg = Egg.load(id);
-  let auctionId =
-    event.transaction.hash.toHex() + '-' + event.logIndex.toString();
   let getter = Getter.bind(Address.fromString(getterAddress));
   let auctionInfo = getter.getEggOnSaleInfo(event.params.id);
+  let auctionId: string;
+
+  if (egg != null && egg.auction != null) {
+    auctionId = egg.auction;
+  } else {
+    auctionId =
+      event.transaction.hash.toHex() + '-' + event.logIndex.toString();
+  }
 
   updateEtherSpentOnToken<Egg>(egg, event.transaction);
 
@@ -202,10 +208,16 @@ export function handleEggOnSale(event: EggOnSaleEvent): void {
 export function handleDragonOnSale(event: DragonOnSaleEvent): void {
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
-  let auctionId =
-    event.transaction.hash.toHex() + '-' + event.logIndex.toString();
   let getter = Getter.bind(Address.fromString(getterAddress));
   let auctionInfo = getter.getDragonOnSaleInfo(event.params.id);
+  let auctionId: string;
+
+  if (dragon != null && dragon.auction != null) {
+    auctionId = dragon.auction;
+  } else {
+    auctionId =
+      event.transaction.hash.toHex() + '-' + event.logIndex.toString();
+  }
 
   updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
 
@@ -227,10 +239,16 @@ export function handleDragonOnSale(event: DragonOnSaleEvent): void {
 export function handleDragonOnBreeding(event: DragonOnBreedingEvent): void {
   let id = event.params.id.toString();
   let dragon = Dragon.load(id);
-  let auctionId =
-    event.transaction.hash.toHex() + '-' + event.logIndex.toString();
   let getter = Getter.bind(Address.fromString(getterAddress));
   let auctionInfo = getter.getBreedingOnSaleInfo(event.params.id);
+  let auctionId: string;
+
+  if (dragon != null && dragon.auction != null) {
+    auctionId = dragon.auction;
+  } else {
+    auctionId =
+      event.transaction.hash.toHex() + '-' + event.logIndex.toString();
+  }
 
   updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
 
