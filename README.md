@@ -12,7 +12,7 @@ The latest updates are available by the following url https://dragonereum-alpha-
  - [ ] `Dragons for sale` page
  - [ ] `Eggs for sale` page
  - [ ] `Dragons for breeding` page
- - [ ] `Services` page
+ - [x] `Services` page
  - [ ] `Start battle` page
  - [ ] `Conducted battles` page
  - [ ] `Battle details` page
@@ -226,6 +226,7 @@ query Dragon($id: ID!) {
       cost
       effect
       usageDate
+      price
     }
     buffs
     strength
@@ -290,6 +291,35 @@ query Dragons($first: Int!, $skip: Int!) {
     name
     owner {
       id
+    }
+  }
+}
+```
+### Get peaceful skills for sale
+```graphql
+query DragonSpecialPeacefulSkills($first: Int!, $skip: Int!) {
+  dragonSpecialPeacefulSkills(first: $first, skip: $skip, where: { price_not: null }, orderBy: usageDate) {
+    skillClass
+    cost
+    effect
+    usageDate
+    price
+    dragon {
+      id
+      types
+      genome
+      name
+      owner {
+        id
+        name
+      }
+      healthAndMana {
+        remainingHealth
+        remainingMana
+        maxHealth
+        maxMana
+        timestamp
+      }
     }
   }
 }
