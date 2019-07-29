@@ -67,6 +67,7 @@ dataSources:
         - Auction
         - GoldAuction
         - Battle
+        - GladiatorBattle
         - DragonBattleSnapshot
       abis:
         - name: Events
@@ -124,6 +125,14 @@ dataSources:
           handler: handleUserNameSet
         - event: BattleEnded(indexed uint256,uint256,uint256,uint256,indexed uint256,indexed uint256,bool,uint256)
           handler: handleBattleEnded
+        - event: GladiatorBattleCreated(indexed uint256,indexed address,indexed uint256,uint256,bool)
+          handler: handleGladiatorBattleCreated
+        - event: GladiatorBattleOpponentSelected(indexed uint256,indexed uint256)
+          handler: handleGladiatorBattleOpponentSelected
+        - event: GladiatorBattleCancelled(indexed uint256)
+          handler: handleGladiatorBattleCancelled
+        - event: GladiatorBattleEnded(indexed uint256,uint256,indexed address,indexed address,uint256,bool)
+          handler: handleGladiatorBattleEnded
         - event: SkillSet(indexed uint256)
           handler: handleSkillSet
         - event: SkillUsed(indexed uint256,indexed uint256)

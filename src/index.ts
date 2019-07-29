@@ -30,7 +30,13 @@ export {
   handleGoldBuyOrderCancelled,
   handleGoldBought,
 } from './gold-market';
-export { handleBattleEnded } from './battles';
+export {
+  handleBattleEnded,
+  handleGladiatorBattleCreated,
+  handleGladiatorBattleOpponentSelected,
+  handleGladiatorBattleCancelled,
+  handleGladiatorBattleEnded,
+} from './battles';
 export {
   handleSkillSet,
   handleSkillUsed,

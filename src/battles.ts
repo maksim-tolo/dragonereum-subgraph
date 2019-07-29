@@ -1,5 +1,11 @@
 import { Address, BigInt } from '@graphprotocol/graph-ts';
-import { BattleEnded as BattleEndedEvent } from '../generated/Events/Events';
+import {
+  BattleEnded as BattleEndedEvent,
+  GladiatorBattleCreated as GladiatorBattleCreatedEvent,
+  GladiatorBattleOpponentSelected as GladiatorBattleOpponentSelectedEvent,
+  GladiatorBattleCancelled as GladiatorBattleCancelledEvent,
+  GladiatorBattleEnded as GladiatorBattleEndedEvent,
+} from '../generated/Events/Events';
 import { Getter } from '../generated/Events/Getter';
 import {
   Dragon,
@@ -7,8 +13,17 @@ import {
   UserBattlesStat,
   Battle,
   DragonBattleSnapshot,
+  GladiatorBattle,
 } from '../generated/schema';
-import { getterAddress } from './constants';
+import {
+  CanceledGladiatorBattleStatus,
+  ConductedGladiatorBattleStatus,
+  CreatedGladiatorBattleStatus,
+  EtherCurrency,
+  getterAddress,
+  GoldCurrency,
+  OpponentSelectedGladiatorBattleStatus,
+} from './constants';
 import {
   updateEtherSpentOnToken,
   updateDragonSkills,
@@ -142,4 +157,105 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   }
 
   battle.save();
+}
+
+export function handleGladiatorBattleCreated(
+  event: GladiatorBattleCreatedEvent,
+): void {
+  let gladiatorBattleId = event.params.id.toString();
+  let dragonId = event.params.dragonId.toString();
+  let dragon = Dragon.load(dragonId);
+  let gladiatorBattle = new GladiatorBattle(gladiatorBattleId);
+
+  gladiatorBattle.status = CreatedGladiatorBattleStatus;
+  gladiatorBattle.bet = event.params.bet;
+  gladiatorBattle.currency = event.params.isGold ? GoldCurrency : EtherCurrency;
+  gladiatorBattle.creatorDragon = dragonId;
+  gladiatorBattle.applicantsDragon = [];
+  gladiatorBattle.save();
+
+  if (dragon != null) {
+    dragon.gladiatorBattle = gladiatorBattleId;
+    dragon.save();
+  }
+}
+
+export function handleGladiatorBattleOpponentSelected(
+  event: GladiatorBattleOpponentSelectedEvent,
+): void {
+  let gladiatorBattleId = event.params.id.toString();
+  let dragonId = event.params.dragonId.toString();
+  let dragon = Dragon.load(dragonId);
+  let gladiatorBattle = GladiatorBattle.load(gladiatorBattleId);
+
+  if (gladiatorBattle != null) {
+    gladiatorBattle.status = OpponentSelectedGladiatorBattleStatus;
+    gladiatorBattle.opponentDragon = dragonId;
+    gladiatorBattle.save();
+  }
+
+  if (dragon != null) {
+    dragon.gladiatorBattle = gladiatorBattleId;
+    dragon.save();
+  }
+}
+
+export function handleGladiatorBattleCancelled(
+  event: GladiatorBattleCancelledEvent,
+): void {
+  let gladiatorBattleId = event.params.id.toString();
+  let gladiatorBattle = GladiatorBattle.load(gladiatorBattleId);
+
+  if (gladiatorBattle != null) {
+    gladiatorBattle.status = CanceledGladiatorBattleStatus;
+    gladiatorBattle.save();
+
+    if (gladiatorBattle.creatorDragon != null) {
+      let creatorDragon = Dragon.load(gladiatorBattle.creatorDragon);
+
+      if (creatorDragon != null) {
+        creatorDragon.gladiatorBattle = null;
+        creatorDragon.save();
+      }
+    }
+
+    if (gladiatorBattle.opponentDragon != null) {
+      let opponentDragon = Dragon.load(gladiatorBattle.opponentDragon);
+
+      if (opponentDragon != null) {
+        opponentDragon.gladiatorBattle = null;
+        opponentDragon.save();
+      }
+    }
+  }
+}
+
+export function handleGladiatorBattleEnded(
+  event: GladiatorBattleEndedEvent,
+): void {
+  let gladiatorBattleId = event.params.id.toString();
+  let gladiatorBattle = GladiatorBattle.load(gladiatorBattleId);
+
+  if (gladiatorBattle != null) {
+    gladiatorBattle.status = ConductedGladiatorBattleStatus;
+    gladiatorBattle.save();
+
+    if (gladiatorBattle.creatorDragon != null) {
+      let creatorDragon = Dragon.load(gladiatorBattle.creatorDragon);
+
+      if (creatorDragon != null) {
+        creatorDragon.gladiatorBattle = null;
+        creatorDragon.save();
+      }
+    }
+
+    if (gladiatorBattle.opponentDragon != null) {
+      let opponentDragon = Dragon.load(gladiatorBattle.opponentDragon);
+
+      if (opponentDragon != null) {
+        opponentDragon.gladiatorBattle = null;
+        opponentDragon.save();
+      }
+    }
+  }
 }

@@ -47,6 +47,7 @@ type Dragon @entity {
   battlesWon: [Battle!] @derivedFrom(field: "winnerDragon")
   battlesDefeated: [Battle!] @derivedFrom(field: "looserDragon")
   etherSpent: BigInt
+  gladiatorBattle: GladiatorBattle
 }
 
 type Egg @entity {
@@ -175,10 +176,6 @@ type Battle @entity {
   looserDragonSnapshot: DragonBattleSnapshot!
 }
 
-type GladiatorBattle @entity {
-  id: ID!
-}
-
 type DragonBattleSnapshot @entity {
   id: ID!
   level: Int!
@@ -190,6 +187,24 @@ type DragonBattleSnapshot @entity {
   strength: BigInt!
   specialAttack: DragonSpecialAttack!
   specialDefense: DragonSpecialDefense!
+}
+
+type GladiatorBattle @entity {
+  id: ID!
+  status: GladiatorBattleStatus!
+  bet: BigInt!
+  currency: Currency!
+  creatorDragon: Dragon!
+  opponentDragon: Dragon!
+  applicantsDragon: [Dragon!]!
+}
+
+enum GladiatorBattleStatus {
+  created
+  applicantsAdded
+  opponentSelected
+  conducted
+  canceled
 }
 
 enum DragonType {

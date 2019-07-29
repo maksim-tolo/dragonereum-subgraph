@@ -14,3 +14,9 @@ export const EtherCurrency = 'ether';
 
 export const SellGoldOrderType = 'sell';
 export const BuyGoldOrderType = 'buy';
+
+export const CreatedGladiatorBattleStatus = 'created';
+export const ApplicantsAddedGladiatorBattleStatus = 'applicantsAdded';
+export const OpponentSelectedGladiatorBattleStatus = 'opponentSelected';
+export const ConductedGladiatorBattleStatus = 'conducted';
+export const CanceledGladiatorBattleStatus = 'canceled';
