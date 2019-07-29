@@ -170,9 +170,13 @@ type Battle @entity {
   winnerUser: User!
   looserUser: User!
   date: BigInt!
-  gladiatorsBattleId: String # TODO: ref to gladiators battle
+  gladiatorBattleId: GladiatorBattle
   winnerDragonSnapshot: DragonBattleSnapshot!
   looserDragonSnapshot: DragonBattleSnapshot!
+}
+
+type GladiatorBattle @entity {
+  id: ID!
 }
 
 type DragonBattleSnapshot @entity {

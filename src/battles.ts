@@ -69,7 +69,7 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   battle.looserDragonSnapshot = takeDragonSnapshot(looserId, battleId);
 
   if (event.params.isGladiator) {
-    battle.gladiatorsBattleId = event.params.gladiatorBattleId.toString();
+    battle.gladiatorBattleId = event.params.gladiatorBattleId.toString();
   }
 
   if (winnerDragon != null) {

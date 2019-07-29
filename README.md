@@ -16,7 +16,7 @@ The latest updates are available by the following url https://dragonereum-alpha-
  - [ ] `Start battle` page
  - [ ] `Conducted battles` page
  - [ ] `Battle details` page
- - [ ] `Conducted gladiators battles` page
+ - [ ] `Conducted gladiator battles` page
  - [ ] `Gladiator battle details` page
  - [ ] `Notifications`
 
