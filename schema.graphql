@@ -48,6 +48,7 @@ type Dragon @entity {
   battlesDefeated: [Battle!] @derivedFrom(field: "looserDragon")
   etherSpent: BigInt
   gladiatorBattle: GladiatorBattle
+  lastBattleDate: BigInt
 }
 
 type Egg @entity {

@@ -105,6 +105,7 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
     winnerDragon.dnaPoints = profile.value5;
     winnerDragon.isBreedingAllowed = profile.value6;
     winnerDragon.buffs = buffs;
+    winnerDragon.lastBattleDate = event.block.timestamp;
     winnerDragon.save();
 
     updateHealthAndMana(winnerId);
@@ -137,6 +138,7 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
     }
 
     looserDragon.buffs = buffs;
+    looserDragon.lastBattleDate = event.block.timestamp;
     looserDragon.save();
 
     updateHealthAndMana(looserId);
