@@ -5,13 +5,13 @@ The latest updates are available by the following url https://dragonereum-alpha-
 ### Integration Progress
  - [x] `GOLD marketplace` page
  - [x] `Leaderboard` page
- - [ ] `My Dragons` page
- - [ ] `My Eggs` page
+ - [x] `My Dragons` page
+ - [x] `My Eggs` page
  - [x] `Dragon Details` page
  - [x] `Egg Details` page
- - [ ] `Dragons for sale` page
- - [ ] `Eggs for sale` page
- - [ ] `Dragons for breeding` page
+ - [x] `Dragons for sale` page
+ - [x] `Eggs for sale` page
+ - [x] `Dragons for breeding` page
  - [x] `Services` page
  - [ ] `Start battle` page
  - [ ] `Conducted battles` page
