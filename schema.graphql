@@ -126,6 +126,14 @@ type DragonHealthAndMana @entity {
   remainingMana: BigInt!
 }
 
+type BattleDragonHealthAndMana @entity {
+  id: ID!
+  maxHealth: BigInt!
+  maxMana: BigInt!
+  initHealth: BigInt!
+  initMana: BigInt!
+}
+
 type Auction @entity {
   id: ID!
   dragon: Dragon
@@ -172,16 +180,18 @@ type Battle @entity {
   winnerUser: User!
   looserUser: User!
   date: BigInt!
-  gladiatorBattleId: GladiatorBattle
+  gladiatorBattle: GladiatorBattle
   winnerDragonSnapshot: DragonBattleSnapshot!
   looserDragonSnapshot: DragonBattleSnapshot!
+  attackerDragonSnapshot: DragonBattleSnapshot!
+  defenderDragonSnapshot: DragonBattleSnapshot!
 }
 
 type DragonBattleSnapshot @entity {
   id: ID!
   level: Int!
   coolness: BigInt!
-  healthAndMana: DragonHealthAndMana!
+  healthAndMana: BattleDragonHealthAndMana!
   skills: DragonSkills!
   buffs: [BigInt!]!
   tactics: DragonTactics!

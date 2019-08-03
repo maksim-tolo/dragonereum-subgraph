@@ -69,6 +69,7 @@ dataSources:
         - Battle
         - GladiatorBattle
         - DragonBattleSnapshot
+        - BattleDragonHealthAndMana
       abis:
         - name: Events
           file: ./abis/Events.json
@@ -125,6 +126,10 @@ dataSources:
           handler: handleUserNameSet
         - event: BattleEnded(indexed uint256,uint256,uint256,uint256,indexed uint256,indexed uint256,bool,uint256)
           handler: handleBattleEnded
+        - event: BattleHealthAndMana(indexed uint256,uint32,uint32,uint32,uint32,uint32,uint32,uint32,uint32)
+          handler: handleBattleHealthAndMana
+        - event: BattleTacticsAndBuffs(indexed uint256,uint8,uint8,uint8,uint8,uint32[5],uint32[5])
+          handler: handleBattleTacticsAndBuffs
         - event: GladiatorBattleCreated(indexed uint256,indexed address,indexed uint256,uint256,bool)
           handler: handleGladiatorBattleCreated
         - event: GladiatorBattleOpponentSelected(indexed uint256,indexed uint256)

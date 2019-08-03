@@ -32,6 +32,8 @@ export {
 } from './gold-market';
 export {
   handleBattleEnded,
+  handleBattleHealthAndMana,
+  handleBattleTacticsAndBuffs,
   handleGladiatorBattleCreated,
   handleGladiatorBattleOpponentSelected,
   handleGladiatorBattleCancelled,

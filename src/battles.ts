@@ -1,6 +1,8 @@
 import { Address, BigInt } from '@graphprotocol/graph-ts';
 import {
   BattleEnded as BattleEndedEvent,
+  BattleHealthAndMana as BattleHealthAndManaEvent,
+  BattleTacticsAndBuffs as BattleTacticsAndBuffsEvent,
   GladiatorBattleCreated as GladiatorBattleCreatedEvent,
   GladiatorBattleOpponentSelected as GladiatorBattleOpponentSelectedEvent,
   GladiatorBattleCancelled as GladiatorBattleCancelledEvent,
@@ -14,6 +16,8 @@ import {
   Battle,
   DragonBattleSnapshot,
   GladiatorBattle,
+  BattleDragonHealthAndMana,
+  DragonTactics,
 } from '../generated/schema';
 import {
   CanceledGladiatorBattleStatus,
@@ -26,9 +30,9 @@ import {
 } from './constants';
 import {
   updateEtherSpentOnToken,
-  updateDragonSkills,
   updateHealthAndMana,
-  updateTactics,
+  updateDragonBaseSkills,
+  updateSpecialBattleSkills,
 } from './helper';
 
 // TODO: Should be called on the previous block
@@ -38,18 +42,18 @@ function takeDragonSnapshot(dragonId: BigInt, battleId: BigInt): string {
   let battleIdStr = battleId.toString();
   let snapshotId = dragonIdStr + '-' + battleIdStr;
   let profile = getter.getDragonProfile(dragonId);
-  let buffs = getter.getDragonBuffs(dragonId);
   let strength = getter.getDragonStrength(dragonId);
-  let snapshot = new DragonBattleSnapshot(snapshotId);
+  let snapshot =
+    DragonBattleSnapshot.load(snapshotId) ||
+    new DragonBattleSnapshot(snapshotId);
 
-  updateTactics(dragonId, snapshotId);
-  updateDragonSkills(dragonId, snapshotId);
+  updateDragonBaseSkills(dragonId, snapshotId);
+  updateSpecialBattleSkills(dragonId, snapshotId);
 
   snapshot.level = profile.value3;
   snapshot.coolness = profile.value7;
-  snapshot.buffs = buffs;
   snapshot.strength = strength;
-  snapshot.healthAndMana = snapshotId; // Reference to DragonHealthAndMana
+  snapshot.healthAndMana = snapshotId; // Reference to BattleDragonHealthAndMana
   snapshot.skills = snapshotId; // Reference to DragonSkills
   snapshot.tactics = snapshotId; // Reference to DragonTactics
   snapshot.specialAttack = snapshotId; // Reference to DragonSpecialAttack
@@ -82,9 +86,17 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   battle.date = event.params.date;
   battle.winnerDragonSnapshot = takeDragonSnapshot(winnerId, battleId);
   battle.looserDragonSnapshot = takeDragonSnapshot(looserId, battleId);
+  battle.attackerDragonSnapshot =
+    attackerId == winnerId
+      ? battle.winnerDragonSnapshot
+      : battle.looserDragonSnapshot;
+  battle.defenderDragonSnapshot =
+    attackerId == looserId
+      ? battle.winnerDragonSnapshot
+      : battle.looserDragonSnapshot;
 
   if (event.params.isGladiator) {
-    battle.gladiatorBattleId = event.params.gladiatorBattleId.toString();
+    battle.gladiatorBattle = event.params.gladiatorBattleId.toString();
   }
 
   if (winnerDragon != null) {
@@ -159,6 +171,74 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   }
 
   battle.save();
+}
+
+export function handleBattleHealthAndMana(
+  event: BattleHealthAndManaEvent,
+): void {
+  let battleId = event.params.battleId.toString();
+  let battle = Battle.load(battleId);
+
+  if (battle != null) {
+    let attackerHealthAndMana = new BattleDragonHealthAndMana(
+      battle.attackerDragonSnapshot,
+    );
+
+    attackerHealthAndMana.initHealth = event.params.attackerInitHealth;
+    attackerHealthAndMana.initMana = event.params.attackerInitMana;
+    attackerHealthAndMana.maxHealth = event.params.attackerMaxHealth;
+    attackerHealthAndMana.maxMana = event.params.attackerMaxMana;
+    attackerHealthAndMana.save();
+
+    let defenderHealthAndMana = new BattleDragonHealthAndMana(
+      battle.defenderDragonSnapshot,
+    );
+
+    defenderHealthAndMana.initHealth = event.params.opponentInitHealth;
+    defenderHealthAndMana.initMana = event.params.opponentInitMana;
+    defenderHealthAndMana.maxHealth = event.params.opponentMaxHealth;
+    defenderHealthAndMana.maxMana = event.params.opponentMaxMana;
+    defenderHealthAndMana.save();
+  }
+}
+
+export function handleBattleTacticsAndBuffs(
+  event: BattleTacticsAndBuffsEvent,
+): void {
+  let battleId = event.params.battleId.toString();
+  let battle = Battle.load(battleId);
+
+  if (battle != null) {
+    let attackerTactics = new DragonTactics(battle.attackerDragonSnapshot);
+
+    attackerTactics.melee = event.params.attackerMeleeChance;
+    attackerTactics.attack = event.params.attackerAttackChance;
+    attackerTactics.save();
+
+    let attackerSnapshot = DragonBattleSnapshot.load(
+      battle.attackerDragonSnapshot,
+    );
+
+    if (attackerSnapshot != null) {
+      attackerSnapshot.buffs = event.params.attackerBuffs;
+      attackerSnapshot.save();
+    }
+
+    let defenderTactics = new DragonTactics(battle.defenderDragonSnapshot);
+
+    defenderTactics.melee = event.params.opponentMeleeChance;
+    defenderTactics.attack = event.params.opponentAttackChance;
+    defenderTactics.save();
+
+    let defenderSnapshot = DragonBattleSnapshot.load(
+      battle.defenderDragonSnapshot,
+    );
+
+    if (defenderSnapshot != null) {
+      defenderSnapshot.buffs = event.params.opponentBuffs;
+      defenderSnapshot.save();
+    }
+  }
 }
 
 export function handleGladiatorBattleCreated(

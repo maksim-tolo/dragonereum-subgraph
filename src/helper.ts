@@ -73,6 +73,23 @@ export function updateTactics(
   tactics.save();
 }
 
+export function updateDragonBaseSkills(
+  dragonId: BigInt,
+  skillsId: string | null = null,
+): void {
+  let skillsIdStr = skillsId || dragonId.toString();
+  let getter = Getter.bind(Address.fromString(getterAddress));
+  let skills = DragonSkills.load(skillsIdStr) || new DragonSkills(skillsIdStr);
+  let skillsValue = getter.getDragonSkills(dragonId);
+
+  skills.attack = skillsValue.value0;
+  skills.defense = skillsValue.value1;
+  skills.stamina = skillsValue.value2;
+  skills.speed = skillsValue.value3;
+  skills.intelligence = skillsValue.value4;
+  skills.save();
+}
+
 export function updateHealthAndMana(
   dragonId: BigInt,
   healthAndManaId: string | null = null,
@@ -122,22 +139,11 @@ export function updateSpecialBattleSkills(
 
 export function updateDragonSkills(
   dragonId: BigInt,
-  skillsId: string | null = null,
+  storeId: string | null = null,
 ): void {
-  let skillsIdStr = skillsId || dragonId.toString();
-  let getter = Getter.bind(Address.fromString(getterAddress));
-  let skills = DragonSkills.load(skillsIdStr) || new DragonSkills(skillsIdStr);
-  let skillsValue = getter.getDragonSkills(dragonId);
-
-  skills.attack = skillsValue.value0;
-  skills.defense = skillsValue.value1;
-  skills.stamina = skillsValue.value2;
-  skills.speed = skillsValue.value3;
-  skills.intelligence = skillsValue.value4;
-  skills.save();
-
-  updateSpecialBattleSkills(dragonId);
-  updateHealthAndMana(dragonId);
+  updateDragonBaseSkills(dragonId, storeId);
+  updateSpecialBattleSkills(dragonId, storeId);
+  updateHealthAndMana(dragonId, storeId);
 }
 
 // TODO: Remove
