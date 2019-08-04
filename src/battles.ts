@@ -16,7 +16,7 @@ import {
   Battle,
   DragonBattleSnapshot,
   GladiatorBattle,
-  BattleDragonHealthAndMana,
+  BattleHealthAndMana,
   DragonTactics,
 } from '../generated/schema';
 import {
@@ -53,7 +53,7 @@ function takeDragonSnapshot(dragonId: BigInt, battleId: BigInt): string {
   snapshot.level = profile.value3;
   snapshot.coolness = profile.value7;
   snapshot.strength = strength;
-  snapshot.healthAndMana = snapshotId; // Reference to BattleDragonHealthAndMana
+  snapshot.healthAndMana = snapshotId; // Reference to BattleHealthAndMana
   snapshot.skills = snapshotId; // Reference to DragonSkills
   snapshot.tactics = snapshotId; // Reference to DragonTactics
   snapshot.specialAttack = snapshotId; // Reference to DragonSpecialAttack
@@ -180,7 +180,7 @@ export function handleBattleHealthAndMana(
   let battle = Battle.load(battleId);
 
   if (battle != null) {
-    let attackerHealthAndMana = new BattleDragonHealthAndMana(
+    let attackerHealthAndMana = new BattleHealthAndMana(
       battle.attackerDragonSnapshot,
     );
 
@@ -190,7 +190,7 @@ export function handleBattleHealthAndMana(
     attackerHealthAndMana.maxMana = event.params.attackerMaxMana;
     attackerHealthAndMana.save();
 
-    let defenderHealthAndMana = new BattleDragonHealthAndMana(
+    let defenderHealthAndMana = new BattleHealthAndMana(
       battle.defenderDragonSnapshot,
     );
 

@@ -69,7 +69,7 @@ dataSources:
         - Battle
         - GladiatorBattle
         - DragonBattleSnapshot
-        - BattleDragonHealthAndMana
+        - BattleHealthAndMana
       abis:
         - name: Events
           file: ./abis/Events.json

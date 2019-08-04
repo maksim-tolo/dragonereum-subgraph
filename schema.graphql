@@ -126,7 +126,7 @@ type DragonHealthAndMana @entity {
   remainingMana: BigInt!
 }
 
-type BattleDragonHealthAndMana @entity {
+type BattleHealthAndMana @entity {
   id: ID!
   maxHealth: BigInt!
   maxMana: BigInt!
@@ -191,7 +191,7 @@ type DragonBattleSnapshot @entity {
   id: ID!
   level: Int!
   coolness: BigInt!
-  healthAndMana: BattleDragonHealthAndMana!
+  healthAndMana: BattleHealthAndMana!
   skills: DragonSkills!
   buffs: [BigInt!]!
   tactics: DragonTactics!
