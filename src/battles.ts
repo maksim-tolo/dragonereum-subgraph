@@ -36,11 +36,8 @@ import {
 } from './helper';
 
 // TODO: Should be called on the previous block
-function takeDragonSnapshot(dragonId: BigInt, battleId: BigInt): string {
+function takeDragonSnapshot(dragonId: BigInt, snapshotId: string): void {
   let getter = Getter.bind(Address.fromString(getterAddress));
-  let dragonIdStr = dragonId.toString();
-  let battleIdStr = battleId.toString();
-  let snapshotId = dragonIdStr + '-' + battleIdStr;
   let profile = getter.getDragonProfile(dragonId);
   let strength = getter.getDragonStrength(dragonId);
   let snapshot =
@@ -59,8 +56,6 @@ function takeDragonSnapshot(dragonId: BigInt, battleId: BigInt): string {
   snapshot.specialAttack = snapshotId; // Reference to DragonSpecialAttack
   snapshot.specialDefense = snapshotId; // Reference to DragonSpecialDefense
   snapshot.save();
-
-  return snapshotId;
 }
 
 export function handleBattleEnded(event: BattleEndedEvent): void {
@@ -76,6 +71,11 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   let battleId = event.params.battleId;
   let battleIdStr = battleId.toString();
   let battle = new Battle(battleIdStr);
+  let attackerSnapshotId = battleIdStr + '-battle-0';
+  let defenderSnapshotId = battleIdStr + '-battle-1';
+
+  takeDragonSnapshot(winnerId, attackerSnapshotId);
+  takeDragonSnapshot(looserId, defenderSnapshotId);
 
   battle.seed = event.params.seed.toString();
   battle.winnerDragon = winnerIdStr;
@@ -84,16 +84,12 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   battle.defenderDragon =
     attackerIdStr == winnerIdStr ? looserIdStr : winnerIdStr;
   battle.date = event.params.date;
-  battle.winnerDragonSnapshot = takeDragonSnapshot(winnerId, battleId);
-  battle.looserDragonSnapshot = takeDragonSnapshot(looserId, battleId);
-  battle.attackerDragonSnapshot =
-    attackerId == winnerId
-      ? battle.winnerDragonSnapshot
-      : battle.looserDragonSnapshot;
-  battle.defenderDragonSnapshot =
-    attackerId == looserId
-      ? battle.winnerDragonSnapshot
-      : battle.looserDragonSnapshot;
+  battle.attackerDragonSnapshot = attackerSnapshotId;
+  battle.defenderDragonSnapshot = defenderSnapshotId;
+  battle.winnerDragonSnapshot =
+    attackerIdStr == winnerIdStr ? attackerSnapshotId : defenderSnapshotId;
+  battle.looserDragonSnapshot =
+    attackerIdStr == looserIdStr ? attackerSnapshotId : defenderSnapshotId;
 
   if (event.params.isGladiator) {
     battle.gladiatorBattle = event.params.gladiatorBattleId.toString();
@@ -177,68 +173,52 @@ export function handleBattleHealthAndMana(
   event: BattleHealthAndManaEvent,
 ): void {
   let battleId = event.params.battleId.toString();
-  let battle = Battle.load(battleId);
+  let attackerId = battleId + '-battle-0';
+  let defenderId = battleId + '-battle-1';
+  let attackerHealthAndMana = new BattleHealthAndMana(attackerId);
+  let defenderHealthAndMana = new BattleHealthAndMana(defenderId);
 
-  if (battle != null) {
-    let attackerHealthAndMana = new BattleHealthAndMana(
-      battle.attackerDragonSnapshot,
-    );
+  attackerHealthAndMana.initHealth = event.params.attackerInitHealth;
+  attackerHealthAndMana.initMana = event.params.attackerInitMana;
+  attackerHealthAndMana.maxHealth = event.params.attackerMaxHealth;
+  attackerHealthAndMana.maxMana = event.params.attackerMaxMana;
+  attackerHealthAndMana.save();
 
-    attackerHealthAndMana.initHealth = event.params.attackerInitHealth;
-    attackerHealthAndMana.initMana = event.params.attackerInitMana;
-    attackerHealthAndMana.maxHealth = event.params.attackerMaxHealth;
-    attackerHealthAndMana.maxMana = event.params.attackerMaxMana;
-    attackerHealthAndMana.save();
-
-    let defenderHealthAndMana = new BattleHealthAndMana(
-      battle.defenderDragonSnapshot,
-    );
-
-    defenderHealthAndMana.initHealth = event.params.opponentInitHealth;
-    defenderHealthAndMana.initMana = event.params.opponentInitMana;
-    defenderHealthAndMana.maxHealth = event.params.opponentMaxHealth;
-    defenderHealthAndMana.maxMana = event.params.opponentMaxMana;
-    defenderHealthAndMana.save();
-  }
+  defenderHealthAndMana.initHealth = event.params.opponentInitHealth;
+  defenderHealthAndMana.initMana = event.params.opponentInitMana;
+  defenderHealthAndMana.maxHealth = event.params.opponentMaxHealth;
+  defenderHealthAndMana.maxMana = event.params.opponentMaxMana;
+  defenderHealthAndMana.save();
 }
 
 export function handleBattleTacticsAndBuffs(
   event: BattleTacticsAndBuffsEvent,
 ): void {
   let battleId = event.params.battleId.toString();
-  let battle = Battle.load(battleId);
+  let attackerId = battleId + '-battle-0';
+  let defenderId = battleId + '-battle-1';
+  let attackerTactics = new DragonTactics(attackerId);
+  let attackerSnapshot =
+    DragonBattleSnapshot.load(attackerId) ||
+    new DragonBattleSnapshot(attackerId);
+  let defenderTactics = new DragonTactics(defenderId);
+  let defenderSnapshot =
+    DragonBattleSnapshot.load(defenderId) ||
+    new DragonBattleSnapshot(defenderId);
 
-  if (battle != null) {
-    let attackerTactics = new DragonTactics(battle.attackerDragonSnapshot);
+  attackerTactics.melee = event.params.attackerMeleeChance;
+  attackerTactics.attack = event.params.attackerAttackChance;
+  attackerTactics.save();
 
-    attackerTactics.melee = event.params.attackerMeleeChance;
-    attackerTactics.attack = event.params.attackerAttackChance;
-    attackerTactics.save();
+  attackerSnapshot.buffs = event.params.attackerBuffs;
+  attackerSnapshot.save();
 
-    let attackerSnapshot = DragonBattleSnapshot.load(
-      battle.attackerDragonSnapshot,
-    );
+  defenderTactics.melee = event.params.opponentMeleeChance;
+  defenderTactics.attack = event.params.opponentAttackChance;
+  defenderTactics.save();
 
-    if (attackerSnapshot != null) {
-      attackerSnapshot.buffs = event.params.attackerBuffs;
-      attackerSnapshot.save();
-    }
-
-    let defenderTactics = new DragonTactics(battle.defenderDragonSnapshot);
-
-    defenderTactics.melee = event.params.opponentMeleeChance;
-    defenderTactics.attack = event.params.opponentAttackChance;
-    defenderTactics.save();
-
-    let defenderSnapshot = DragonBattleSnapshot.load(
-      battle.defenderDragonSnapshot,
-    );
-
-    if (defenderSnapshot != null) {
-      defenderSnapshot.buffs = event.params.opponentBuffs;
-      defenderSnapshot.save();
-    }
-  }
+  defenderSnapshot.buffs = event.params.opponentBuffs;
+  defenderSnapshot.save();
 }
 
 export function handleGladiatorBattleCreated(
