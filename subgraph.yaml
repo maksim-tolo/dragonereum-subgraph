@@ -64,12 +64,12 @@ dataSources:
         - DragonSpecialDefense
         - DragonSpecialPeacefulSkill
         - DragonHealthAndMana
+        - BattleHealthAndMana
         - Auction
         - GoldAuction
         - Battle
-        - GladiatorBattle
         - DragonBattleSnapshot
-        - BattleHealthAndMana
+        - GladiatorBattle
       abis:
         - name: Events
           file: ./abis/Events.json

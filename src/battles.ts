@@ -253,7 +253,7 @@ export function handleGladiatorBattleCreated(
   gladiatorBattle.bet = event.params.bet;
   gladiatorBattle.currency = event.params.isGold ? GoldCurrency : EtherCurrency;
   gladiatorBattle.creatorDragon = dragonId;
-  gladiatorBattle.applicantsDragon = [];
+  gladiatorBattle.applicantsDragons = [];
   gladiatorBattle.save();
 
   if (dragon != null) {
