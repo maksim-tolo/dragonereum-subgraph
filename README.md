@@ -1,8 +1,4 @@
-## Dapp
-Subgraph integration is currently in progress.
-The latest updates are available by the following url https://dragonereum-alpha-test.web.app/.
-
-### Integration Progress
+## Integration Progress
  - [x] `GOLD marketplace` page
  - [x] `Leaderboard` page
  - [x] `My Dragons` page
@@ -13,9 +9,9 @@ The latest updates are available by the following url https://dragonereum-alpha-
  - [x] `Eggs for sale` page
  - [x] `Dragons for breeding` page
  - [x] `Services` page
+ - [x] `Battle details` page
  - [ ] `Start battle` page
  - [ ] `Conducted battles` page
- - [x] `Battle details` page
  - [ ] `Conducted gladiator battles` page
  - [ ] `Gladiator battle details` page
  - [ ] `Notifications`
