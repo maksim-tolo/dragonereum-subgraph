@@ -57,9 +57,9 @@ dataSources:
         - UserBattlesStat
         - Dragon
         - Egg
-        - DragonTactics
+        - DragonTactic
         - DragonBattlesStat
-        - DragonSkills
+        - DragonSkill
         - DragonSpecialAttack
         - DragonSpecialDefense
         - DragonSpecialPeacefulSkill

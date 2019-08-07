@@ -22,7 +22,7 @@ type Dragon @entity {
   types: [Int!]!
   parsedTypes: [DragonType!]! # TODO: Remove
   genome: [Int!]!
-  skills: DragonSkills!
+  skills: DragonSkill!
   birthDay: BigInt!
   generation: Int!
   experience: Int!
@@ -30,7 +30,7 @@ type Dragon @entity {
   coolness: BigInt!
   isBreedingAllowed: Boolean!
   level: Int!
-  tactics: DragonTactics!
+  tactics: DragonTactic! # TODO: tactic
   auction: Auction
   name: String
   parents: [Dragon!]!
@@ -70,7 +70,7 @@ type Egg @entity {
   etherSpent: BigInt
 }
 
-type DragonTactics @entity {
+type DragonTactic @entity {
   id: ID!
   melee: Int!
   attack: Int!
@@ -82,7 +82,7 @@ type DragonBattlesStat @entity {
   defeats: Int!
 }
 
-type DragonSkills @entity {
+type DragonSkill @entity {
   id: ID!
   attack: BigInt!
   defense: BigInt!
@@ -192,9 +192,9 @@ type DragonBattleSnapshot @entity {
   level: Int!
   coolness: BigInt!
   healthAndMana: BattleHealthAndMana!
-  skills: DragonSkills!
+  skills: DragonSkill!
   buffs: [BigInt!]!
-  tactics: DragonTactics!
+  tactics: DragonTactic! # TODO: tactic
   strength: BigInt!
   specialAttack: DragonSpecialAttack!
   specialDefense: DragonSpecialDefense!

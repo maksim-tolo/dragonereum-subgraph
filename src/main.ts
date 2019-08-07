@@ -20,7 +20,7 @@ import { Transfer as EggTransferEvent } from '../generated/EggStorage/EggStorage
 import {
   Dragon,
   Egg,
-  DragonTactics,
+  DragonTactic,
   DragonBattlesStat,
   Auction,
 } from '../generated/schema';
@@ -151,8 +151,8 @@ export function handleEggHatched(event: EggHatchedEvent): void {
   dragon.genome = genome;
   dragon.strength = strength;
   dragon.owner = userId;
-  dragon.tactics = dragonIdStr; // Reference to DragonTactics
-  dragon.skills = dragonIdStr; // Reference to DragonSkills
+  dragon.tactics = dragonIdStr; // Reference to DragonTactic
+  dragon.skills = dragonIdStr; // Reference to DragonSkill
   dragon.healthAndMana = dragonIdStr; // Reference to DragonHealthAndMana
   dragon.battlesStat = dragonIdStr; // Reference to DragonBattlesStat
   dragon.specialAttack = dragonIdStr; // Reference to DragonSpecialAttack
@@ -211,13 +211,13 @@ export function handleDragonNameSet(event: DragonNameSetEvent): void {
 
 export function handleDragonTacticsSet(event: DragonTacticsSetEvent): void {
   let id = event.params.id.toString();
-  let tactics = DragonTactics.load(id);
+  let tactic = DragonTactic.load(id);
   let dragon = Dragon.load(id);
 
-  if (tactics != null) {
-    tactics.melee = event.params.melee;
-    tactics.attack = event.params.attack;
-    tactics.save();
+  if (tactic != null) {
+    tactic.melee = event.params.melee;
+    tactic.attack = event.params.attack;
+    tactic.save();
   }
 
   if (dragon != null) {

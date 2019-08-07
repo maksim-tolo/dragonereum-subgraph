@@ -1,10 +1,10 @@
 import { Address, BigInt, EthereumTransaction } from '@graphprotocol/graph-ts';
 import {
   DragonHealthAndMana,
-  DragonSkills,
+  DragonSkill,
   DragonSpecialAttack,
   DragonSpecialDefense,
-  DragonTactics,
+  DragonTactic,
   User,
   UserBattlesStat,
 } from '../generated/schema';
@@ -64,13 +64,13 @@ export function updateTactics(
 ): void {
   let tacticsIdStr = tacticsId || dragonId.toString();
   let getter = Getter.bind(Address.fromString(getterAddress));
-  let tactics =
-    DragonTactics.load(tacticsIdStr) || new DragonTactics(tacticsIdStr);
+  let tactic =
+    DragonTactic.load(tacticsIdStr) || new DragonTactic(tacticsIdStr);
   let tacticsValue = getter.getDragonTactics(dragonId);
 
-  tactics.melee = tacticsValue.value0;
-  tactics.attack = tacticsValue.value1;
-  tactics.save();
+  tactic.melee = tacticsValue.value0;
+  tactic.attack = tacticsValue.value1;
+  tactic.save();
 }
 
 export function updateDragonBaseSkills(
@@ -79,7 +79,7 @@ export function updateDragonBaseSkills(
 ): void {
   let skillsIdStr = skillsId || dragonId.toString();
   let getter = Getter.bind(Address.fromString(getterAddress));
-  let skills = DragonSkills.load(skillsIdStr) || new DragonSkills(skillsIdStr);
+  let skills = DragonSkill.load(skillsIdStr) || new DragonSkill(skillsIdStr);
   let skillsValue = getter.getDragonSkills(dragonId);
 
   skills.attack = skillsValue.value0;

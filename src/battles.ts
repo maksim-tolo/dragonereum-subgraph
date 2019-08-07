@@ -17,7 +17,7 @@ import {
   DragonBattleSnapshot,
   GladiatorBattle,
   BattleHealthAndMana,
-  DragonTactics,
+  DragonTactic,
 } from '../generated/schema';
 import {
   CanceledGladiatorBattleStatus,
@@ -51,8 +51,8 @@ function takeDragonSnapshot(dragonId: BigInt, snapshotId: string): void {
   snapshot.coolness = profile.value7;
   snapshot.strength = strength;
   snapshot.healthAndMana = snapshotId; // Reference to BattleHealthAndMana
-  snapshot.skills = snapshotId; // Reference to DragonSkills
-  snapshot.tactics = snapshotId; // Reference to DragonTactics
+  snapshot.skills = snapshotId; // Reference to DragonSkill
+  snapshot.tactics = snapshotId; // Reference to DragonTactic
   snapshot.specialAttack = snapshotId; // Reference to DragonSpecialAttack
   snapshot.specialDefense = snapshotId; // Reference to DragonSpecialDefense
   snapshot.save();
@@ -197,25 +197,25 @@ export function handleBattleTacticsAndBuffs(
   let battleId = event.params.battleId.toString();
   let attackerId = battleId + '-battle-0';
   let defenderId = battleId + '-battle-1';
-  let attackerTactics = new DragonTactics(attackerId);
+  let attackerTactic = new DragonTactic(attackerId);
   let attackerSnapshot =
     DragonBattleSnapshot.load(attackerId) ||
     new DragonBattleSnapshot(attackerId);
-  let defenderTactics = new DragonTactics(defenderId);
+  let defenderTactic = new DragonTactic(defenderId);
   let defenderSnapshot =
     DragonBattleSnapshot.load(defenderId) ||
     new DragonBattleSnapshot(defenderId);
 
-  attackerTactics.melee = event.params.attackerMeleeChance;
-  attackerTactics.attack = event.params.attackerAttackChance;
-  attackerTactics.save();
+  attackerTactic.melee = event.params.attackerMeleeChance;
+  attackerTactic.attack = event.params.attackerAttackChance;
+  attackerTactic.save();
 
   attackerSnapshot.buffs = event.params.attackerBuffs;
   attackerSnapshot.save();
 
-  defenderTactics.melee = event.params.opponentMeleeChance;
-  defenderTactics.attack = event.params.opponentAttackChance;
-  defenderTactics.save();
+  defenderTactic.melee = event.params.opponentMeleeChance;
+  defenderTactic.attack = event.params.opponentAttackChance;
+  defenderTactic.save();
 
   defenderSnapshot.buffs = event.params.opponentBuffs;
   defenderSnapshot.save();
