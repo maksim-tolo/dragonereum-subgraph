@@ -68,21 +68,22 @@ export function handleBattleEnded(event: BattleEndedEvent): void {
   let looserDragon = Dragon.load(looserIdStr);
   let attackerId = event.params.attackerId;
   let attackerIdStr = attackerId.toString();
+  let defenderId = attackerIdStr == winnerIdStr ? looserId : winnerId;
+  let defenderIdStr = defenderId.toString();
   let battleId = event.params.battleId;
   let battleIdStr = battleId.toString();
   let battle = new Battle(battleIdStr);
   let attackerSnapshotId = battleIdStr + '-battle-0';
   let defenderSnapshotId = battleIdStr + '-battle-1';
 
-  takeDragonSnapshot(winnerId, attackerSnapshotId);
-  takeDragonSnapshot(looserId, defenderSnapshotId);
+  takeDragonSnapshot(attackerId, attackerSnapshotId);
+  takeDragonSnapshot(defenderId, defenderSnapshotId);
 
   battle.seed = event.params.seed.toString();
   battle.winnerDragon = winnerIdStr;
   battle.looserDragon = looserIdStr;
   battle.attackerDragon = attackerIdStr;
-  battle.defenderDragon =
-    attackerIdStr == winnerIdStr ? looserIdStr : winnerIdStr;
+  battle.defenderDragon = defenderIdStr;
   battle.date = event.params.date;
   battle.attackerDragonSnapshot = attackerSnapshotId;
   battle.defenderDragonSnapshot = defenderSnapshotId;
