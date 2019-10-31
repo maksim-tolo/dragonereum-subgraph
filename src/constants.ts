@@ -1,4 +1,4 @@
-export const getterAddress = '0xF88Fdb63dc782dAE646cD6c74728Ca83f56200E4'; // TODO: Use dynamic address
+export const getterAddress = '0x030FF988Aa97E88BF9b1ff12158Bb22F44276e74'; // TODO: Use dynamic address
 export const nullAddress = '0x0000000000000000000000000000000000000000';
 
 export const DragonSaleAuctionType = 'dragonSale';
