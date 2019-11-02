@@ -30,8 +30,8 @@
     ]
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.14.0",
-    "@graphprotocol/graph-ts": "0.14.0"
+    "@graphprotocol/graph-cli": "0.16.0",
+    "@graphprotocol/graph-ts": "0.16.0"
   },
   "devDependencies": {
     "husky": "^3.0.2",

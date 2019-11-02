@@ -8,6 +8,7 @@ dataSources:
     source:
       address: "0xfCAd2859F3e602D4cFB9ACA35465A618f9009F7b"
       abi: EggStorage
+      startBlock: 6790000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -28,6 +29,7 @@ dataSources:
     source:
       address: "0x960f401AED58668ef476eF02B2A2D43B83C261D8"
       abi: DragonStorage
+      startBlock: 6790000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -48,6 +50,7 @@ dataSources:
     source:
       address: "0xD31b8e0219Bd83678978f6dB531d9A3F45608894"
       abi: Events
+      startBlock: 6790000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
