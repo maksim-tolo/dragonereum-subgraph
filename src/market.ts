@@ -1,4 +1,4 @@
-import { Address, BigInt, EthereumBlock } from '@graphprotocol/graph-ts';
+import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts';
 import {
   DragonOnSale as DragonOnSaleEvent,
   DragonRemovedFromSale as DragonRemovedFromSaleEvent,
@@ -344,7 +344,7 @@ export function handleDragonBreedingBought(
   );
 }
 
-export function handleBlock(block: EthereumBlock): void {
+export function handleBlock(block: ethereum.Block): void {
   if (dynamicPricesAuctionsIds.length != 0) {
     dynamicPricesAuctionsIds = dynamicPricesAuctionsIds.filter(auctionId =>
       updateCurrentPrice(auctionId, block.timestamp),

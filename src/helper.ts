@@ -1,4 +1,4 @@
-import { Address, BigInt, EthereumTransaction } from '@graphprotocol/graph-ts';
+import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts';
 import {
   DragonHealthAndMana,
   DragonSkill,
@@ -41,13 +41,13 @@ export function initUser(userId: string): User {
   return user as User;
 }
 
-export function getTxCost(tx: EthereumTransaction): BigInt {
+export function getTxCost(tx: ethereum.Transaction): BigInt {
   return tx.gasPrice.times(tx.gasUsed);
 }
 
 export function updateEtherSpentOnToken<T extends ERC721Token>(
   token: T | null,
-  tx: EthereumTransaction,
+  tx: ethereum.Transaction,
 ): void {
   if (token != null && token.owner != null && token.owner == tx.from.toHex()) {
     if (token.etherSpent == null) {

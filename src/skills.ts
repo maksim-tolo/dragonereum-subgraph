@@ -1,4 +1,4 @@
-import { Address, BigInt, EthereumTransaction } from '@graphprotocol/graph-ts';
+import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts';
 import {
   SkillOnSale as SkillOnSaleEvent,
   SkillRemovedFromSale as SkillRemovedFromSaleEvent,
@@ -15,7 +15,7 @@ function updateDragonBuffs(
   dragonId: BigInt,
   targetDragonId: BigInt,
   timestamp: BigInt,
-  tx: EthereumTransaction,
+  tx: ethereum.Transaction,
 ): void {
   let getter = Getter.bind(Address.fromString(getterAddress));
   let dragonIdStr = dragonId.toString();
