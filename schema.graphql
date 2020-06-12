@@ -193,7 +193,7 @@ type DragonBattleSnapshot @entity {
   coolness: BigInt!
   healthAndMana: BattleHealthAndMana!
   skills: DragonSkill!
-  buffs: [BigInt!]!
+  buffs: [BigInt!]
   tactics: DragonTactic! # TODO: tactic
   strength: BigInt!
   specialAttack: DragonSpecialAttack!

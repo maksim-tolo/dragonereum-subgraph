@@ -47,7 +47,7 @@ function getEggTypes(momTypes: i32[], dadTypes: i32[]): i32[] {
 
 function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
   let eggId = id.toString();
-  let egg = Egg.load(eggId) || new Egg(eggId);
+  let egg = new Egg(eggId);
   let getter = Getter.bind(Address.fromString(getterAddress));
   let eggDetails = getter.getEgg(id);
 
@@ -84,6 +84,7 @@ function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
   egg.save();
 }
 
+// TODO: updateEtherSpentOnToken<Egg>(egg, event.transaction);
 export function handleEggClaimed(event: EggClaimedEvent): void {
   createEgg(event.params.id, event.params.user, event.block.timestamp);
 }
@@ -105,15 +106,15 @@ export function handleEggSentToNest(event: EggSentToNestEvent): void {
   }
 }
 
+// TODO: updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
 export function handleEggHatched(event: EggHatchedEvent): void {
   let getter = Getter.bind(Address.fromString(getterAddress));
   let eggId = event.params.eggId.toString();
   let dragonId = event.params.dragonId;
   let dragonIdStr = dragonId.toString();
   let userId = event.params.user.toHex();
-  let dragon = Dragon.load(dragonIdStr) || new Dragon(dragonIdStr);
-  let battlesStat =
-    DragonBattlesStat.load(dragonIdStr) || new DragonBattlesStat(dragonIdStr);
+  let dragon = new Dragon(dragonIdStr);
+  let battlesStat = new DragonBattlesStat(dragonIdStr);
   let egg = Egg.load(eggId);
   let parents = getter.getDragonParents(dragonId);
   let profile = getter.getDragonProfile(dragonId);
@@ -237,60 +238,68 @@ export function handleUserNameSet(event: UserNameSetEvent): void {
 export function handleDragonTransfer(event: DragonTransferEvent): void {
   let to = event.params._to.toHex();
   let id = event.params._tokenId.toString();
-  let dragon = Dragon.load(id) || new Dragon(id);
+  let dragon = Dragon.load(id);
 
   if (to != nullAddress) {
     initUser(to);
-
-    if (dragon.owner == null) {
-      // Dragon was born
-      dragon.owner = to;
-    } else if (dragon.owner == event.transaction.from.toHex()) {
-      // Regular transfer
-      updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
-
-      dragon.owner = to;
-    } else {
-      // Dragon was bought
-      dragon.owner = to;
-
-      updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
-    }
-  } else {
-    dragon.owner = null;
   }
 
-  dragon.save();
+  if (dragon != null) {
+    if (to != nullAddress) {
+      if (dragon.owner == null) {
+        // Dragon was born
+        dragon.owner = to;
+      } else if (dragon.owner == event.transaction.from.toHex()) {
+        // Regular transfer
+        updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+
+        dragon.owner = to;
+      } else {
+        // Dragon was bought
+        dragon.owner = to;
+
+        updateEtherSpentOnToken<Dragon>(dragon, event.transaction);
+      }
+    } else {
+      dragon.owner = null;
+    }
+
+    dragon.save();
+  }
 }
 
 export function handleEggTransfer(event: EggTransferEvent): void {
   let to = event.params._to.toHex();
   let id = event.params._tokenId.toString();
-  let egg = Egg.load(id) || new Egg(id);
+  let egg = Egg.load(id);
 
   if (to != nullAddress) {
     initUser(to);
-
-    if (egg.owner == null) {
-      // Egg was born
-      egg.owner = to;
-
-      updateEtherSpentOnToken<Egg>(egg, event.transaction);
-    } else if (egg.owner == event.transaction.from.toHex()) {
-      // Regular transfer
-      updateEtherSpentOnToken<Egg>(egg, event.transaction);
-
-      egg.owner = to;
-    } else {
-      // Egg was bought
-      egg.owner = to;
-
-      updateEtherSpentOnToken<Egg>(egg, event.transaction);
-    }
-  } else {
-    // Egg was hatched
-    egg.owner = null;
   }
 
-  egg.save();
+  if (egg != null) {
+    if (to != nullAddress) {
+      if (egg.owner == null) {
+        // Egg was born
+        egg.owner = to;
+
+        updateEtherSpentOnToken<Egg>(egg, event.transaction);
+      } else if (egg.owner == event.transaction.from.toHex()) {
+        // Regular transfer
+        updateEtherSpentOnToken<Egg>(egg, event.transaction);
+
+        egg.owner = to;
+      } else {
+        // Egg was bought
+        egg.owner = to;
+
+        updateEtherSpentOnToken<Egg>(egg, event.transaction);
+      }
+    } else {
+      // Egg was hatched
+      egg.owner = null;
+    }
+
+    egg.save();
+  }
 }
