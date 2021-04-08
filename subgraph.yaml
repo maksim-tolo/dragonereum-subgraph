@@ -1,4 +1,6 @@
 specVersion: 0.0.2
+description: Subgraph for Dragonereum blockchain game
+repository: https://github.com/maksim-tolo/dragonereum-subgraph
 schema:
   file: ./schema.graphql
 dataSources:

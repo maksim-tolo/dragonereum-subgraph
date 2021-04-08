@@ -1,3 +1,10 @@
+type EggDistributionInfo @entity {
+  id: ID!
+  price: BigInt!
+  blockNumber: BigInt!
+  owner: User
+}
+
 type User @entity {
   id: ID! # Address
   name: String

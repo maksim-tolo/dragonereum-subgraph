@@ -23,6 +23,7 @@ import {
   DragonTactic,
   DragonBattlesStat,
   Auction,
+  EggDistributionInfo,
 } from '../generated/schema';
 import { Getter } from '../generated/Events/Getter';
 import { getterAddress, nullAddress } from './constants';
@@ -87,6 +88,17 @@ function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
 // TODO: updateEtherSpentOnToken<Egg>(egg, event.transaction);
 export function handleEggClaimed(event: EggClaimedEvent): void {
   createEgg(event.params.id, event.params.user, event.block.timestamp);
+
+  let eggId = event.params.id.toString();
+  let eggDistributionInfo = new EggDistributionInfo(eggId);
+
+  eggDistributionInfo.price = event.transaction.gasPrice.times(
+    event.transaction.gasUsed,
+  );
+  eggDistributionInfo.blockNumber = event.block.number;
+  eggDistributionInfo.owner = event.params.user.toHex();
+
+  eggDistributionInfo.save();
 }
 
 export function handleEggCreated(event: EggCreatedEvent): void {
