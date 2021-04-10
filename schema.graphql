@@ -1,8 +1,18 @@
 type EggDistributionInfo @entity {
   id: ID!
+  releasedAmount: Int
+  distributedAmount: Int
+  lastBlock: BigInt
+  numberOfTypes: BigInt
+}
+
+type DistributedEgg @entity {
+  id: ID!
+  index: Int!
   price: BigInt!
   blockNumber: BigInt!
   owner: User
+  egg: Egg
 }
 
 type User @entity {

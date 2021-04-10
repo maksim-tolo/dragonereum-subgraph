@@ -24,6 +24,7 @@ import {
   DragonBattlesStat,
   Auction,
   EggDistributionInfo,
+  DistributedEgg,
 } from '../generated/schema';
 import { Getter } from '../generated/Events/Getter';
 import { getterAddress, nullAddress } from './constants';
@@ -89,15 +90,35 @@ function createEgg(id: BigInt, owner: Address, timestamp: BigInt): void {
 export function handleEggClaimed(event: EggClaimedEvent): void {
   createEgg(event.params.id, event.params.user, event.block.timestamp);
 
-  let eggId = event.params.id.toString();
-  let eggDistributionInfo = new EggDistributionInfo(eggId);
+  let eggDistributionInfoId = '0';
+  let eggDistributionInfo = EggDistributionInfo.load(eggDistributionInfoId);
 
-  eggDistributionInfo.price = event.transaction.gasPrice.times(
+  if (eggDistributionInfo == null) {
+    let getter = Getter.bind(Address.fromString(getterAddress));
+    let distributionInfo = getter.getDistributionInfo();
+
+    eggDistributionInfo = new EggDistributionInfo(eggDistributionInfoId);
+    eggDistributionInfo.releasedAmount = distributionInfo.value1.toI32();
+    eggDistributionInfo.distributedAmount = 0;
+    eggDistributionInfo.lastBlock = distributionInfo.value2;
+    eggDistributionInfo.numberOfTypes = distributionInfo.value4;
+  }
+
+  let eggId = event.params.id.toString();
+  let distributedEgg = new DistributedEgg(eggId);
+
+  distributedEgg.price = event.transaction.gasPrice.times(
     event.transaction.gasUsed,
   );
-  eggDistributionInfo.blockNumber = event.block.number;
-  eggDistributionInfo.owner = event.params.user.toHex();
+  distributedEgg.blockNumber = event.block.number;
+  distributedEgg.owner = event.params.user.toHex();
+  distributedEgg.index = eggDistributionInfo.distributedAmount;
+  distributedEgg.egg = eggId;
+  distributedEgg.save();
 
+  eggDistributionInfo.distributedAmount =
+    eggDistributionInfo.distributedAmount + 1;
+  eggDistributionInfo.lastBlock = event.block.number;
   eggDistributionInfo.save();
 }
 
