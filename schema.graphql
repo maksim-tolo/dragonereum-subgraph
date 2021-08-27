@@ -247,6 +247,7 @@ enum AuctionStatus {
   active
   canceled
   fulfilled
+  transferred
 }
 
 enum AuctionType {

@@ -27,7 +27,11 @@ import {
   DistributedEgg,
 } from '../generated/schema';
 import { Getter } from '../generated/Events/Getter';
-import { getterAddress, nullAddress } from './constants';
+import {
+  TransferredAuctionStatus,
+  getterAddress,
+  nullAddress,
+} from './constants';
 import {
   initUser,
   updateDragonSkills,
@@ -297,6 +301,15 @@ export function handleDragonTransfer(event: DragonTransferEvent): void {
       dragon.owner = null;
     }
 
+    if (dragon.auction != null) {
+      let auction = Auction.load(dragon.auction);
+
+      if (auction != null) {
+        auction.status = TransferredAuctionStatus;
+        auction.save();
+      }
+    }
+
     dragon.save();
   }
 }
@@ -331,6 +344,15 @@ export function handleEggTransfer(event: EggTransferEvent): void {
     } else {
       // Egg was hatched
       egg.owner = null;
+    }
+
+    if (egg.auction != null) {
+      let auction = Auction.load(egg.auction);
+
+      if (auction != null) {
+        auction.status = TransferredAuctionStatus;
+        auction.save();
+      }
     }
 
     egg.save();

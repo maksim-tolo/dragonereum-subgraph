@@ -8,6 +8,7 @@ export const DragonBreedingAuctionType = 'dragonBreeding';
 export const ActiveAuctionStatus = 'active';
 export const CanceledAuctionStatus = 'canceled';
 export const FulfilledAuctionStatus = 'fulfilled';
+export const TransferredAuctionStatus = 'transferred';
 
 export const GoldCurrency = 'gold';
 export const EtherCurrency = 'ether';
